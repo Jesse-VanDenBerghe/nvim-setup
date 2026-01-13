@@ -17,4 +17,5 @@ vim.pack.add{
     { src = 'https://github.com/navarasu/onedark.nvim' },
     { src = 'https://github.com/nvim-mini/mini.icons' },
     { src = 'https://github.com/goolord/alpha-nvim' },
+    { src = 'https://github.com/nvim-telescope/telescope-project.nvim'},
 }

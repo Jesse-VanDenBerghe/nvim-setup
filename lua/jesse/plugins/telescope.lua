@@ -1,4 +1,5 @@
-require('telescope').setup({
+local telescope = require('telescope')
+telescope.setup({
     defaults = {
         file_ignore_patterns = {
             "node_modules",
@@ -26,10 +27,10 @@ vim.keymap.set('n', '<leader>fm', builtin.marks, {desc = "Find Marks (Telescope)
 vim.keymap.set('n', '<leader>fd', builtin.man_pages, {desc = "Find Man pages (Telescope)"})
 
 -- Git Finders
-vim.keymap.set('n', '<leader>gf', builtin.git_files, {desc = "Git Files (Telescope)"})
-vim.keymap.set('n', '<leader>gc', builtin.git_commits, {desc = "Git Commits (Telescope)"})
-vim.keymap.set('n', '<leader>gs', builtin.git_status, {desc = "Git Status (Telescope)"})
-vim.keymap.set('n', '<leader>gb', builtin.git_branches, {desc = "Git Branches (Telescope)"})
+vim.keymap.set('n', '<leader>fgf', builtin.git_files, {desc = "Git Files (Telescope)"})
+vim.keymap.set('n', '<leader>fgc', builtin.git_commits, {desc = "Git Commits (Telescope)"})
+vim.keymap.set('n', '<leader>fgs', builtin.git_status, {desc = "Git Status (Telescope)"})
+vim.keymap.set('n', '<leader>fgb', builtin.git_branches, {desc = "Git Branches (Telescope)"})
 
 -- LSP Finders
 vim.keymap.set('n', '<leader>lr', builtin.lsp_references, {desc = "LSP References (Telescope)"})
@@ -40,3 +41,10 @@ end
 vim.keymap.set('n', '<leader>li', builtin.lsp_implementations, {desc = "LSP References (Telescope)"})
 vim.keymap.set('n', '<leader>ld', builtin.lsp_definitions, {desc = "LSP Definitions (Telescope)"})
 
+telescope.load_extension('project')
+vim.api.nvim_set_keymap(
+        'n',
+        '<leader>pp',
+        ":lua require'telescope'.extensions.project.project{}<CR>",
+        {noremap = true, silent = true}
+)

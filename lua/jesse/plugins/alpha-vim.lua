@@ -1,7 +1,7 @@
 local alpha = require('alpha')
 local dashboard = require('alpha.themes.dashboard')
 
-dashboard.section.header.val = {
+local header = {
 [[                                                                                                                                                                                                      ]],
 [[88888888ba                                                                 88                                                                                                                         ]],
 [[88      "8b                                                         ,d     88                                                                                                                         ]],
@@ -14,5 +14,24 @@ dashboard.section.header.val = {
 [[                                                                                                                                                                                      aa,    ,88      ]],
 [[                                                                                                                                                                                       "Y8bbdP        ]],
 }
+
+local function footer()
+    local datetime = os.date("%Y-%m-%d %H:%M:%S")
+    local plugins_text = "⚡ Neovim loaded " .. datetime
+    return plugins_text
+end
+
+local function buttons()
+    local button_list = {
+            dashboard.button("ldr ff", "Find file", ":Telescope find_files<CR>"),
+            dashboard.button("ldr fo", "Recent files", ":Telescope oldfiles<CR>"),
+            dashboard.button(":qa", "Quit Neovim", ":qa<CR>"),
+    }
+    return button_list
+end
+
+dashboard.section.header.val = header
+dashboard.section.buttons.val = buttons()
+dashboard.section.footer.val = footer()
 
 alpha.setup(dashboard.opts)
