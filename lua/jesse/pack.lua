@@ -15,4 +15,6 @@ vim.pack.add{
     { src = 'https://github.com/williamboman/mason.nvim' },
     { src = 'https://github.com/williamboman/mason-lspconfig.nvim' },
     { src = 'https://github.com/navarasu/onedark.nvim' },
+    { src = 'https://github.com/nvim-mini/mini.icons' },
+    { src = 'https://github.com/goolord/alpha-nvim' },
 }

@@ -4,6 +4,9 @@ vim.g.mapleader = " "
 print("\nMaking sure plugins are up to date...")
 require("jesse.pack")
 
+print("\nSetting up (Start screen)")
+require("jesse.plugins.alpha-vim")
+
 print("\nLoading Theme")
 require("jesse.themes.onedark")
 
