@@ -14,4 +14,4 @@ local function gc_commit()
   end)
 end
 
-vim.keymap.set("n", "gc", gc_commit, {desc = "Commit with Jira ticket prefix"})
+vim.keymap.set("n", "<leader>gc", gc_commit, {desc = "Commit with Jira ticket prefix"})

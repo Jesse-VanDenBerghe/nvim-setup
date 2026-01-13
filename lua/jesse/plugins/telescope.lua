@@ -30,6 +30,7 @@ vim.keymap.set('n', '<leader>fd', builtin.man_pages, {desc = "Find Man pages (Te
 vim.keymap.set('n', '<leader>fgf', builtin.git_files, {desc = "Git Files (Telescope)"})
 vim.keymap.set('n', '<leader>fgc', builtin.git_commits, {desc = "Git Commits (Telescope)"})
 vim.keymap.set('n', '<leader>fgs', builtin.git_status, {desc = "Git Status (Telescope)"})
+vim.keymap.set('n', '<leader>gs', builtin.git_status, {desc = "Git Status (Telescope)"})
 vim.keymap.set('n', '<leader>fgb', builtin.git_branches, {desc = "Git Branches (Telescope)"})
 
 -- LSP Finders
