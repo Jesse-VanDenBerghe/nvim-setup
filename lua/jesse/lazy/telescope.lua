@@ -57,9 +57,11 @@ return {
 			local builtin = require("telescope.builtin")
 
 			-- Finders
-			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find Files" })
+			vim.keymap.set("n", "<leader>ff", function()
+				builtin.find_files({ hidden = true, no_ignore = true })
+			end, { desc = "Find Files" })
 			vim.keymap.set("n", "<leader>fs", function()
-				builtin.grep_string({ search = vim.fn.input("Search for: ") })
+				builtin.grep_string({ search = vim.fn.input("Search for: "), hidden = true, no_ignore = true })
 			end, { desc = "Find with Search String" })
 			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Find Help Tags" })
 			vim.keymap.set("n", "<leader>ft", builtin.treesitter, { desc = "Find Treesitter Symbols" })
