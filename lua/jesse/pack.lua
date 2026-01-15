@@ -3,7 +3,6 @@ vim.pack.add{
     { src = 'https://github.com/mbbill/undotree.git' },
     { src = 'https://github.com/tpope/vim-fugitive.git' },
     { src = 'https://github.com/nvim-treesitter/nvim-treesitter.git' },
-    { src = 'https://github.com/ThePrimeagen/harpoon.git' },
     { src = 'https://github.com/hrsh7th/nvim-cmp' },
     { src = 'https://github.com/hrsh7th/cmp-nvim-lsp' },
     { src = 'https://github.com/hrsh7th/cmp-buffer' },
