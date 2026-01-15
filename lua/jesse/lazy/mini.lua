@@ -23,9 +23,7 @@ return {
 				},
 			})
 
-			require("mini.pairs").setup()
-
-			require("mini.animate").setup()
+            require("mini.pairs").setup()
 
 			require("mini.cmdline").setup()
 		end,

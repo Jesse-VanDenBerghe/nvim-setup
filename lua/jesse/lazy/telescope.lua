@@ -57,24 +57,18 @@ return {
 			local builtin = require("telescope.builtin")
 
 			-- Finders
-			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find Files (Telescope)" })
+			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find Files" })
 			vim.keymap.set("n", "<leader>fs", function()
 				builtin.grep_string({ search = vim.fn.input("Search for: ") })
-			end, { desc = "Find with Search String (Telescope)" })
-			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Find Help Tags (Telescope)" })
-			vim.keymap.set("n", "<leader>ft", builtin.treesitter, { desc = "Find Treesitter Symbols (Telescope)" })
-			vim.keymap.set("n", "<leader>fo", builtin.oldfiles, { desc = "Find old Files (Telescope)" })
-			vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Find commands (Telescope)" })
-			vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Find keymaps (Telescope)" })
-			vim.keymap.set("n", "<leader>fr", builtin.registers, { desc = "Find Registers (Telescope)" })
-			vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find Marks (Telescope)" })
-			vim.keymap.set("n", "<leader>fd", builtin.man_pages, { desc = "Find Man pages (Telescope)" })
-
-			-- Git Finders
-			vim.keymap.set("n", "<leader>fgf", builtin.git_files, { desc = "Git Files (Telescope)" })
-			vim.keymap.set("n", "<leader>fgc", builtin.git_commits, { desc = "Git Commits (Telescope)" })
-			vim.keymap.set("n", "<leader>fgs", builtin.git_status, { desc = "Git Status (Telescope)" })
-			vim.keymap.set("n", "<leader>fgb", builtin.git_branches, { desc = "Git Branches (Telescope)" })
+			end, { desc = "Find with Search String" })
+			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Find Help Tags" })
+			vim.keymap.set("n", "<leader>ft", builtin.treesitter, { desc = "Find Treesitter Symbols" })
+			vim.keymap.set("n", "<leader>fo", builtin.oldfiles, { desc = "Find old Files" })
+			vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Find commands" })
+			vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Find keymaps" })
+			vim.keymap.set("n", "<leader>fr", builtin.registers, { desc = "Find Registers" })
+			vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find Marks" })
+			vim.keymap.set("n", "<leader>fd", builtin.man_pages, { desc = "Find Man pages" })
 		end,
 	},
 }

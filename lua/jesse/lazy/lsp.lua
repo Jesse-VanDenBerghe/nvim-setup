@@ -85,12 +85,12 @@ return {
 					-- for LSP related items. It sets the mode, buffer and description for us each time.
 					local map = function(keys, func, desc, mode)
 						mode = mode or "n"
-						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "[L]SP: " .. desc })
+						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
 
 					-- Rename the variable under your cursor.
 					--  Most Language Servers support renaming across files, etc.
-					map("<leader>lrn", vim.lsp.buf.rename, "[R]efactor re[n]ame")
+					map("<leader>lrn", vim.lsp.buf.rename, "Refactor re[n]ame")
 
 					-- Execute a code action, usually your cursor needs to be on top of an error
 					-- or a suggestion from your LSP for this to activate.
