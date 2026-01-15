@@ -3,25 +3,23 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 print("\nMaking sure plugins are up to date...")
-require("jesse.pack")
+--require("jesse.pack")
+require("jesse.lazy_init")
 
 print("\nSetting up (Start screen)")
-require("jesse.plugins.alpha-vim")
-
-print("\nLoading Theme")
-require("jesse.themes.onedark")
+--require("jesse.plugins.alpha-vim")
 
 print("\nConfiguring plugins...")
-require("jesse.plugins")
+--require("jesse.plugins")
 
 print("\nApplying remaps...")
 require("jesse.remap")
 
 print("\nEnabling LSP servers...")
-require("jesse.lsp")
+--require("jesse.lsp")
 
 print("\nEnabling copilot servers...")
-require("jesse.copilot")
+--require("jesse.copilot")
 
 vim.api.nvim_set_hl(0, "Normal", {bg = "none"})
 vim.api.nvim_set_hl(0, "NormalFloat", {bg = "none"})
