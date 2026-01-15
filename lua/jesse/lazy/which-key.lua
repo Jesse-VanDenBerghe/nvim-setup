@@ -46,6 +46,24 @@ return {
 			spec = {
 				{ "<leader>f", group = "[F]ind" },
 				{ "<leader>h", group = "[H]arpoon" },
+				{ "<leader>t", group = "[T]ree" },
+
+				{ "<leader>l", group = "[L]SP" },
+				{ "<leader>lr", group = "[R]efactor" },
+				{ "<leader>lg", group = "[G]o" },
+
+				{ "<leader>g", group = "[G]it" },
+				{ "<leader>gc", group = "[C]ommit" },
+				{ "<leader>gb", group = "[B]ranch" },
+			},
+		},
+		keys = {
+			{
+				"<leader>?",
+				function()
+					require("which-key").show({ global = false })
+				end,
+				desc = "Local keymaps",
 			},
 		},
 	},

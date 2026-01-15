@@ -3,8 +3,6 @@ vim.g.maplocalleader = " "
 
 require("jesse.lazy_init")
 
-require("jesse.remap")
-
 vim.g.have_nerd_font = true
 
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -50,12 +48,11 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "120"
 
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
-vim.diagnostic.config({
-	virtual_text = true,
-	virtual_lines = { current_line = true },
-})
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })

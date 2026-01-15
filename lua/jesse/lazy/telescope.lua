@@ -1,91 +1,80 @@
 return {
-    {
-        "nvim-telescope/telescope.nvim",
-        event = "VimEnter",
-        dependencies = {
-            'nvim-lua/plenary.nvim',
-            { -- If encountering errors, see telescope-fzf-native README for installation instructions
-                'nvim-telescope/telescope-fzf-native.nvim',
+	{
+		"nvim-telescope/telescope.nvim",
+		event = "VimEnter",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			{ -- If encountering errors, see telescope-fzf-native README for installation instructions
+				"nvim-telescope/telescope-fzf-native.nvim",
 
-                -- `build` is used to run some command when the plugin is installed/updated.
-                -- This is only run then, not every time Neovim starts up.
-                build = 'make',
+				-- `build` is used to run some command when the plugin is installed/updated.
+				-- This is only run then, not every time Neovim starts up.
+				build = "make",
 
-                -- `cond` is a condition used to determine whether this plugin should be
-                -- installed and loaded.
-                cond = function()
-                    return vim.fn.executable 'make' == 1
-                end,
-            },
-            { 'nvim-telescope/telescope-ui-select.nvim' },
+				-- `cond` is a condition used to determine whether this plugin should be
+				-- installed and loaded.
+				cond = function()
+					return vim.fn.executable("make") == 1
+				end,
+			},
+			{ "nvim-telescope/telescope-ui-select.nvim" },
 
-            -- Useful for getting pretty icons, but requires a Nerd Font.
-            { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
-        },
-        config = function()
-            require('telescope').setup {
-                -- You can put your default mappings / updates / etc. in here
-                --  All the info you're looking for is in `:help telescope.setup()`
-                --
-                -- defaults = {
-                    --   mappings = {
-                        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-                        --   },
-                        -- },
-                        -- pickers = {}
-                        extensions = {
-                            ['ui-select'] = {
-                                require('telescope.themes').get_dropdown(),
-                            },
-                        },
-                        defaults = {
-                            file_ignore_patterns = {
-                                "node_modules",
-                                ".git/",
-                                "%.lock",
-                                "pack/",
-                                "lsp/"
-                            }
-                        },
-                    }
+			-- Useful for getting pretty icons, but requires a Nerd Font.
+			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+		},
+		config = function()
+			require("telescope").setup({
+				-- You can put your default mappings / updates / etc. in here
+				--  All the info you're looking for is in `:help telescope.setup()`
+				--
+				-- defaults = {
+				--   mappings = {
+				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+				--   },
+				-- },
+				-- pickers = {}
+				extensions = {
+					["ui-select"] = {
+						require("telescope.themes").get_dropdown(),
+					},
+				},
+				defaults = {
+					file_ignore_patterns = {
+						"node_modules",
+						".git/",
+						"%.lock",
+						"pack/",
+						"lsp/",
+					},
+				},
+			})
 
-                    -- Enable Telescope extensions if they are installed
-                    pcall(require('telescope').load_extension, 'fzf')
-                    pcall(require('telescope').load_extension, 'ui-select')
-                    pcall(require('telescope').load_extension('harpoon'))
+			-- Enable Telescope extensions if they are installed
+			pcall(require("telescope").load_extension, "fzf")
+			pcall(require("telescope").load_extension, "ui-select")
+			pcall(require("telescope").load_extension("harpoon"))
 
-                    local builtin = require('telescope.builtin')
+			local builtin = require("telescope.builtin")
 
-                    -- Finders
-                    vim.keymap.set('n', '<leader>ff', builtin.find_files, {desc = "Find Files (Telescope)"})
-                    vim.keymap.set('n', '<leader>fs', function()
-                        builtin.grep_string({ search = vim.fn.input("Search for: ") });
-                    end, {desc = "Find with Search String (Telescope)"})
-                    vim.keymap.set('n', '<leader>fh', builtin.help_tags, {desc = "Find Help Tags (Telescope)"})
-                    vim.keymap.set('n', '<leader>ft', builtin.treesitter, {desc = "Find Treesitter Symbols (Telescope)"})
-                    vim.keymap.set('n', '<leader>fo', builtin.oldfiles, {desc = "Find old Files (Telescope)"})
-                    vim.keymap.set('n', '<leader>fc', builtin.commands, {desc = "Find commands (Telescope)"})
-                    vim.keymap.set('n', '<leader>fk', builtin.keymaps, {desc = "Find keymaps (Telescope)"})
-                    vim.keymap.set('n', '<leader>fr', builtin.registers, {desc = "Find Registers (Telescope)"})
-                    vim.keymap.set('n', '<leader>fm', builtin.marks, {desc = "Find Marks (Telescope)"})
-                    vim.keymap.set('n', '<leader>fd', builtin.man_pages, {desc = "Find Man pages (Telescope)"})
+			-- Finders
+			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find Files (Telescope)" })
+			vim.keymap.set("n", "<leader>fs", function()
+				builtin.grep_string({ search = vim.fn.input("Search for: ") })
+			end, { desc = "Find with Search String (Telescope)" })
+			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Find Help Tags (Telescope)" })
+			vim.keymap.set("n", "<leader>ft", builtin.treesitter, { desc = "Find Treesitter Symbols (Telescope)" })
+			vim.keymap.set("n", "<leader>fo", builtin.oldfiles, { desc = "Find old Files (Telescope)" })
+			vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Find commands (Telescope)" })
+			vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Find keymaps (Telescope)" })
+			vim.keymap.set("n", "<leader>fr", builtin.registers, { desc = "Find Registers (Telescope)" })
+			vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find Marks (Telescope)" })
+			vim.keymap.set("n", "<leader>fd", builtin.man_pages, { desc = "Find Man pages (Telescope)" })
 
-                    -- Git Finders
-                    vim.keymap.set('n', '<leader>fgf', builtin.git_files, {desc = "Git Files (Telescope)"})
-                    vim.keymap.set('n', '<leader>fgc', builtin.git_commits, {desc = "Git Commits (Telescope)"})
-                    vim.keymap.set('n', '<leader>fgs', builtin.git_status, {desc = "Git Status (Telescope)"})
-                    vim.keymap.set('n', '<leader>gs', builtin.git_status, {desc = "Git Status (Telescope)"})
-                    vim.keymap.set('n', '<leader>fgb', builtin.git_branches, {desc = "Git Branches (Telescope)"})
-
-                    -- LSP Finders
-                    vim.keymap.set('n', '<leader>lr', builtin.lsp_references, {desc = "LSP References (Telescope)"})
-                    vim.keymap.set('n', '<leader>lfd', function()
-                        builtin.diagnostics({bufnr = 0})
-                    end
-                    , {desc = "LSP Diagnostics (Telescope)"})
-                    vim.keymap.set('n', '<leader>li', builtin.lsp_implementations, {desc = "LSP References (Telescope)"})
-                    vim.keymap.set('n', '<leader>ld', builtin.lsp_definitions, {desc = "LSP Definitions (Telescope)"})
-
-                end,
-            },
-        }
+			-- Git Finders
+			vim.keymap.set("n", "<leader>fgf", builtin.git_files, { desc = "Git Files (Telescope)" })
+			vim.keymap.set("n", "<leader>fgc", builtin.git_commits, { desc = "Git Commits (Telescope)" })
+			vim.keymap.set("n", "<leader>fgs", builtin.git_status, { desc = "Git Status (Telescope)" })
+			vim.keymap.set("n", "<leader>fgb", builtin.git_branches, { desc = "Git Branches (Telescope)" })
+		end,
+	},
+}
