@@ -50,6 +50,31 @@ return {
 			--    That is to say, every time a new file is opened that is associated with
 			--    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
 			--    function will be executed to configure the current buffer
+			-- Copilot inline completion support
+			vim.api.nvim_create_autocmd("LspAttach", {
+				group = vim.api.nvim_create_augroup("copilot-inline-completion", { clear = true }),
+				callback = function(args)
+					local bufnr = args.buf
+					local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+					if
+						client
+						and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, bufnr)
+					then
+						vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+
+						vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
+							desc = "LSP: accept inline completion",
+							buffer = bufnr,
+						})
+						vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
+							desc = "LSP: switch inline completion",
+							buffer = bufnr,
+						})
+					end
+				end,
+			})
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
 				callback = function(event)
@@ -238,6 +263,80 @@ return {
 					},
 				},
 				elixirls = {},
+				copilot = {
+					cmd = { "copilot-language-server", "--stdio" },
+					filetypes = { "*" },
+					root_dir = function(fname)
+						return require("lspconfig.util").root_pattern(".git", ".")(fname)
+					end,
+					single_file_support = true,
+					settings = {
+						telemetry = { telemetryLevel = "all" },
+					},
+					init_options = {
+						editorInfo = { name = "Neovim", version = tostring(vim.version()) },
+						editorPluginInfo = { name = "Neovim", version = tostring(vim.version()) },
+					},
+					on_attach = function(client, bufnr)
+						local function sign_in()
+							client:request("signIn", vim.empty_dict(), function(err, result)
+								if err then
+									vim.notify(err.message, vim.log.levels.ERROR)
+									return
+								end
+								if result.command then
+									local code = result.userCode
+									vim.fn.setreg("+", code)
+									vim.fn.setreg("*", code)
+									local continue = vim.fn.confirm(
+										"Copied your one-time code to clipboard.\nOpen the browser to complete the sign-in process?",
+										"&Yes\n&No"
+									)
+									if continue == 1 then
+										client:exec_cmd(result.command, { bufnr = bufnr }, function(cmd_err, cmd_result)
+											if cmd_err then
+												vim.notify(cmd_err.message, vim.log.levels.ERROR)
+												return
+											end
+											if cmd_result.status == "OK" then
+												vim.notify("Signed in as " .. cmd_result.user .. ".")
+											end
+										end)
+									end
+								end
+								if result.status == "PromptUserDeviceFlow" then
+									vim.notify(
+										"Enter your one-time code "
+											.. result.userCode
+											.. " in "
+											.. result.verificationUri
+									)
+								elseif result.status == "AlreadySignedIn" then
+									vim.notify("Already signed in as " .. result.user .. ".")
+								end
+							end)
+						end
+
+						local function sign_out()
+							client:request("signOut", vim.empty_dict(), function(err, result)
+								if err then
+									vim.notify(err.message, vim.log.levels.ERROR)
+									return
+								end
+								if result.status == "NotSignedIn" then
+									vim.notify("Not signed in.")
+								end
+							end)
+						end
+
+						vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", sign_in, {
+							desc = "Sign in Copilot with GitHub",
+						})
+						vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignOut", sign_out, {
+							desc = "Sign out Copilot with GitHub",
+						})
+					end,
+				},
 			}
 
 			-- Ensure the servers and tools above are installed
