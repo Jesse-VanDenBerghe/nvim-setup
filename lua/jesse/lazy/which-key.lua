@@ -46,7 +46,10 @@ return {
 			spec = {
 				{ "<leader>f", group = "[F]ind" },
 				{ "<leader>h", group = "[H]arpoon" },
-				{ "<leader>t", group = "[T]ree" },
+				{ "<leader>e", group = "[E]xplorer" },
+				{ "<leader>t", group = "[T]est" },
+				{ "<leader>r", group = "[R]un" },
+				{ "<leader>b", group = "[B]uild" },
 
 				{ "<leader>l", group = "[L]SP" },
 				{ "<leader>lr", group = "[R]efactor" },

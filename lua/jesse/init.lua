@@ -2,6 +2,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 require("jesse.lazy_init")
+require("jesse.languages_init")
 
 vim.g.have_nerd_font = true
 

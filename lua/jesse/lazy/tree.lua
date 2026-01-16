@@ -16,12 +16,12 @@ return {
 		local api = require("nvim-tree.api")
 
 		local keymap = function(k, a, desc)
-			vim.keymap.set("n", k, a, { desc = "[T]ree: " .. desc })
+			vim.keymap.set("n", k, a, { desc = "Explorer: " .. desc })
 		end
 
-		keymap("<leader>tt", api.tree.toggle, "Toggle")
-		keymap("<leader>tf", api.tree.focus, "Focus")
-		keymap("<leader>to", api.tree.open, "Open")
-		keymap("<leader>tc", api.tree.close, "Close")
+		keymap("<leader>et", api.tree.toggle, "Toggle")
+		keymap("<leader>ef", api.tree.focus, "Focus")
+		keymap("<leader>eo", api.tree.open, "Open")
+		keymap("<leader>ec", api.tree.close, "Close")
 	end,
 }
