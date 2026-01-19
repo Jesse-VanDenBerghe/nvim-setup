@@ -275,6 +275,7 @@ return {
 						return require("lspconfig.util").root_pattern(".git", ".")(fname)
 					end,
 					single_file_support = true,
+					autostart = not vim.g.copilot_disabled,
 					settings = {
 						telemetry = { telemetryLevel = "all" },
 					},
@@ -343,6 +344,24 @@ return {
 					end,
 				},
 			}
+
+			-- Copilot toggle command (session only)
+			vim.g.copilot_disabled = true
+
+			vim.api.nvim_create_user_command("CopilotToggle", function()
+				local clients = vim.lsp.get_clients({ name = "copilot" })
+				if #clients > 0 then
+					vim.lsp.stop_client(clients)
+					vim.g.copilot_disabled = true
+					vim.notify("Copilot disabled for this session")
+				else
+					vim.g.copilot_disabled = false
+					vim.cmd("LspStart copilot")
+					vim.notify("Copilot enabled")
+				end
+			end, { desc = "Toggle Copilot for this session" })
+
+			vim.keymap.set("n", "<leader>lc", "<cmd>CopilotToggle<cr>", { desc = "Toggle Copilot" })
 
 			-- Ensure the servers and tools above are installed
 			--
