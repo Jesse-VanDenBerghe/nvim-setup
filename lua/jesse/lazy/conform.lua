@@ -29,6 +29,9 @@ return {
 			formatters_by_ft = {
 				lua = { "stylua" },
 			},
+			formatters = {
+				stylua = { prepend_args = { "--column-width", "120" } },
+			},
 		},
 	},
 }

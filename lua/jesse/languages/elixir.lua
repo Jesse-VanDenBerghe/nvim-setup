@@ -1,3 +1,5 @@
+vim.g.copilot_disabled = true
+
 local elixirgroup = vim.api.nvim_create_augroup("ElixirTools", { clear = true })
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "elixir",

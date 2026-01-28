@@ -6,6 +6,16 @@ require("jesse.languages_init")
 
 vim.g.have_nerd_font = true
 
+-- Configure HEEx filetype detection
+vim.filetype.add({
+	extension = {
+		heex = "heex",
+	},
+	pattern = {
+		[".*%.html%.heex"] = "heex",
+	},
+})
+
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 

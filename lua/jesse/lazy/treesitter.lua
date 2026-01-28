@@ -1,20 +1,29 @@
 return {
     { -- Highlight, edit, and navigate code
         'nvim-treesitter/nvim-treesitter',
+        lazy = false,
         build = ':TSUpdate',
         config = function()
-            -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-            local ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'elixir' }
+            -- New nvim-treesitter API (main branch rewrite)
+            require('nvim-treesitter').setup({
+                install_dir = vim.fn.stdpath('data') .. '/site',
+            })
 
-            -- Autoinstall languages
-            vim.g.treesitter_auto_install = true
+            -- Install parsers (async, no-op if already installed)
+            require('nvim-treesitter').install({
+                'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
+                'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+                'elixir', 'heex', 'eex'
+            })
 
-            require('nvim-treesitter').install(ensure_installed)
-
-            -- Enable highlighting
+            -- Enable treesitter highlighting for all filetypes with a parser
             vim.api.nvim_create_autocmd('FileType', {
-                callback = function()
-                    pcall(vim.treesitter.start)
+                callback = function(args)
+                    -- Only start if a parser exists for this filetype
+                    if pcall(vim.treesitter.start, args.buf) then
+                        -- Enable treesitter-based indentation
+                        vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                    end
                 end,
             })
         end,
