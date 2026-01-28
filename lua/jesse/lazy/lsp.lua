@@ -239,6 +239,25 @@ return {
 			elixirls = {
 				filetypes = { "elixir", "eelixir", "heex", "surface" },
 			},
+			tailwindcss = {
+				filetypes = { "html", "heex", "elixir", "eelixir", "javascript", "typescript", "css" },
+				init_options = {
+					userLanguages = {
+						elixir = "html-eex",
+						eelixir = "html-eex",
+						heex = "html-eex",
+					},
+				},
+				settings = {
+					tailwindCSS = {
+						experimental = {
+							classRegex = {
+								"class[:]\\s*\"([^\"]*)",
+							},
+						},
+					},
+				},
+			},
 			copilot = {
 					cmd = { "copilot-language-server", "--stdio" },
 					filetypes = { "*" },
@@ -352,6 +371,7 @@ return {
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 				"elixir-ls",
+				"tailwindcss-language-server",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
