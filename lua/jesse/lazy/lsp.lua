@@ -236,6 +236,17 @@ return {
 					},
 				},
 			},
+			kotlin_language_server = {
+				settings = {
+					kotlin = {
+						compiler = {
+							jvm = {
+								target = "17",
+							},
+						},
+					},
+				},
+			},
 			elixirls = {
 				filetypes = { "elixir", "eelixir", "heex", "surface" },
 			},
