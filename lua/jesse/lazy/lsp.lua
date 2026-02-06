@@ -221,55 +221,55 @@ return {
 				-- ts_ls = {},
 				--
 
-			yamlls = {},
-			lua_ls = {
-				-- cmd = { ... },
-				-- filetypes = { ... },
-				-- capabilities = {},
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
+				yamlls = {},
+				lua_ls = {
+					-- cmd = { ... },
+					-- filetypes = { ... },
+					-- capabilities = {},
+					settings = {
+						Lua = {
+							completion = {
+								callSnippet = "Replace",
+							},
+							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+							diagnostics = { disable = { "missing-fields" } },
 						},
-						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-						diagnostics = { disable = { "missing-fields" } },
 					},
 				},
-			},
-			kotlin_language_server = {
-				settings = {
-					kotlin = {
-						compiler = {
-							jvm = {
-								target = "17",
+				kotlin_language_server = {
+					settings = {
+						kotlin = {
+							compiler = {
+								jvm = {
+									target = "17",
+								},
 							},
 						},
 					},
 				},
-			},
-			elixirls = {
-				filetypes = { "elixir", "eelixir", "heex", "surface" },
-			},
-			tailwindcss = {
-				filetypes = { "html", "heex", "elixir", "eelixir", "javascript", "typescript", "css" },
-				init_options = {
-					userLanguages = {
-						elixir = "html-eex",
-						eelixir = "html-eex",
-						heex = "html-eex",
-					},
+				elixirls = {
+					filetypes = { "elixir", "eelixir", "heex", "surface" },
 				},
-				settings = {
-					tailwindCSS = {
-						experimental = {
-							classRegex = {
-								"class[:]\\s*\"([^\"]*)",
+				tailwindcss = {
+					filetypes = { "html", "heex", "elixir", "eelixir", "javascript", "typescript", "css" },
+					init_options = {
+						userLanguages = {
+							elixir = "html-eex",
+							eelixir = "html-eex",
+							heex = "html-eex",
+						},
+					},
+					settings = {
+						tailwindCSS = {
+							experimental = {
+								classRegex = {
+									'class[:]\\s*"([^"]*)',
+								},
 							},
 						},
 					},
 				},
-			},
-			copilot = {
+				copilot = {
 					cmd = { "copilot-language-server", "--stdio" },
 					filetypes = { "*" },
 					root_dir = function(fname)
