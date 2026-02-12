@@ -18,7 +18,6 @@ return {
 				"lua",
 				"luadoc",
 				"markdown",
-				"markdown_inline",
 				"query",
 				"vim",
 				"vimdoc",
@@ -33,10 +32,18 @@ return {
 			-- Enable treesitter highlighting for all filetypes with a parser
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
+					local ft = vim.bo[args.buf].filetype
+
+					if ft == "markdown" then
+						return
+					end
+
 					-- Only start if a parser exists for this filetype
 					if pcall(vim.treesitter.start, args.buf) then
 						-- Enable treesitter-based indentation
-						vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+						pcall(function()
+							vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+						end)
 					end
 				end,
 			})
