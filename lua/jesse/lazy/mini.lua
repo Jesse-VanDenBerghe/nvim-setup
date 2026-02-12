@@ -18,6 +18,11 @@ return {
             require("mini.pairs").setup()
 
 			require("mini.cmdline").setup()
+
+			require("mini.animate").setup({
+				cursor = { timing = require("mini.animate").gen_timing.linear({ duration = 50, unit = "total" }) },
+				scroll = { timing = require("mini.animate").gen_timing.linear({ duration = 50, unit = "total" }) },
+			})
 		end,
 	},
 }
