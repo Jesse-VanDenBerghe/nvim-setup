@@ -18,11 +18,19 @@ return {
 				end)
 			end
 
-			local function gcp_commit_and_push()
-				vim.fn.system("git add -A")
-				gc_commit()
+	local function gcp_commit_and_push()
+		vim.fn.system("git add -A")
+		local branch = vim.fn.systemlist("git rev-parse --abbrev-ref HEAD")[1]
+		local ticket = branch:match("([A-Z]+-%d+)")
+
+		vim.ui.input({ prompt = "Commit message: " }, function(input)
+			if input then
+				local message = ticket and (ticket .. ": " .. input) or input
+				vim.cmd("Git commit -m '" .. message:gsub("'", "'\\''") .. "'")
 				vim.cmd("Git push")
 			end
+		end)
+	end
 
 			vim.keymap.set("n", "<leader>gcm", gc_commit, { desc = "Git Commit with [M]essage" })
 			vim.keymap.set("n", "<leader>gcp", gcp_commit_and_push, { desc = "Git Commit and [P]ush" })
