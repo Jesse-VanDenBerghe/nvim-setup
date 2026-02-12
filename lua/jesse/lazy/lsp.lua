@@ -269,6 +269,7 @@ return {
 						},
 					},
 				},
+				ts_ls = {},
 				copilot = {
 					cmd = { "copilot-language-server", "--stdio" },
 					filetypes = { "*" },
@@ -383,6 +384,7 @@ return {
 				"stylua", -- Used to format Lua code
 				"elixir-ls",
 				"tailwindcss-language-server",
+				"typescript-language-server",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

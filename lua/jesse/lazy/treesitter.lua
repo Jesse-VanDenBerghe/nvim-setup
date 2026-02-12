@@ -26,6 +26,8 @@ return {
 				"heex",
 				"eex",
 				"kotlin",
+				"javascript",
+				"typescript",
 			})
 
 			-- Enable treesitter highlighting for all filetypes with a parser
