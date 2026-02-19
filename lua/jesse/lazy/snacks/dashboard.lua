@@ -77,7 +77,7 @@ return {
 			section = "projects",
 			indent = 2,
 			padding = 1,
-			limit = 5,
+			limit = 10,
 		},
 		{
 			pane = 2,
