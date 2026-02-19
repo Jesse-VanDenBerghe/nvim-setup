@@ -13,7 +13,8 @@ require('lazy').setup{
     spec = "jesse.lazy",
     checker = {
         enabled = true,
-        notify = false
+        notify = false,
+        frequency = 86400, -- check for updates at most once per day
     },
     change_detection = {
         notify = false

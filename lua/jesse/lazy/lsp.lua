@@ -20,29 +20,50 @@ return {
 			"saghen/blink.cmp",
 		},
 		config = function()
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("copilot-inline-completion", { clear = false }),
-				callback = function(args)
-					local bufnr = args.buf
-					local client = vim.lsp.get_client_by_id(args.data.client_id)
+			-- NOTE: vim.lsp.inline_completion is a Neovim nightly (0.12+) API.
+			-- Guard against its absence on stable 0.11 so the block is a no-op there.
+			if vim.lsp.inline_completion then
+				vim.api.nvim_create_autocmd("LspAttach", {
+					group = vim.api.nvim_create_augroup("copilot-inline-completion", { clear = false }),
+					callback = function(args)
+						local bufnr = args.buf
+						local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-					if
-						client
-						and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, bufnr)
-					then
-						vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+						if
+							client
+							and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, bufnr)
+						then
+							vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
 
-						vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
-							desc = "LSP: accept inline completion",
-							buffer = bufnr,
-						})
-						vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
-							desc = "LSP: switch inline completion",
-							buffer = bufnr,
-						})
-					end
-				end,
-			})
+							-- Trigger / cycle through inline completions.
+							vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
+								desc = "LSP: trigger inline completion",
+								buffer = bufnr,
+							})
+							vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
+								desc = "LSP: cycle inline completion",
+								buffer = bufnr,
+							})
+
+							-- Accept the currently shown inline completion suggestion.
+							vim.keymap.set("i", "<Tab>", function()
+								return vim.lsp.inline_completion.accept() or "<Tab>"
+							end, {
+								desc = "LSP: accept inline completion",
+								buffer = bufnr,
+								expr = true,
+							})
+							vim.keymap.set("i", "<Right>", function()
+								return vim.lsp.inline_completion.accept() or "<Right>"
+							end, {
+								desc = "LSP: accept inline completion",
+								buffer = bufnr,
+								expr = true,
+							})
+						end
+					end,
+				})
+			end
 
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
