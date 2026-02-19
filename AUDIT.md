@@ -10,40 +10,6 @@ The configuration is functional and well-structured for a personal setup. The pr
 
 ## High Priority Issues
 
-### 4. `lsp.lua` — `copilot` in Mason's `ensure_installed`
-
-**Severity:** HIGH
-
-```lua
-servers = {
-  copilot = { ... },   -- ❌ Not a Mason package
-  elixirls = { ... },
-  ...
-}
-
--- Later (line 382)
-ensure_installed = vim.tbl_keys(servers)  -- Includes "copilot"!
-```
-
-There is no Mason package called `"copilot"` — it should be `"copilot-language-server"` or excluded entirely. This causes mason-tool-installer to emit warnings/errors on every startup.
-
----
-
-### 5. `lsp.lua:24` — Augroup `{ clear = true }` on Per-Buffer Autocmd
-
-**Severity:** HIGH
-
-```lua
--- Line 23-24
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = vim.api.nvim_create_augroup("copilot-inline-completion", { clear = true }),
-  -- ❌ clear = true wipes ALL previous handlers in this augroup every LspAttach!
-```
-
-Clearing the augroup on every `LspAttach` event wipes the inline completion handler for previously-opened buffers. Should be `{ clear = false }` or restructured to use a single global augroup without clearing.
-
----
-
 ### 6. `mini.lua` — LSP Hover (`K`) Lost with No Replacement
 
 **Severity:** HIGH
