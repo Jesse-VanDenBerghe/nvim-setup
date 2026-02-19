@@ -1,10 +1,10 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.g.have_nerd_font = true
+
 require("jesse.lazy_init")
 require("jesse.languages_init")
-
-vim.g.have_nerd_font = true
 
 -- Configure HEEx filetype detection
 vim.filetype.add({
@@ -78,10 +78,14 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+local auto_save_group = vim.api.nvim_create_augroup("auto-save", { clear = true })
 vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
-	pattern = { "*" },
-	command = "silent! wall",
-	nested = true,
+	group = auto_save_group,
+	callback = function()
+		if vim.bo.buftype == "" and vim.bo.modifiable then
+			vim.cmd("silent! wall")
+		end
+	end,
 })
 
 vim.api.nvim_create_autocmd("TextYankPost", {

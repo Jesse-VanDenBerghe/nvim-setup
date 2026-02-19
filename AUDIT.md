@@ -10,57 +10,6 @@ The configuration is functional and well-structured for a personal setup. The pr
 
 ## Medium Priority Issues
 
-### 11. `init.lua` — Auto-Save Autocmd Has No Augroup
-
-**Severity:** MEDIUM
-
-```lua
--- Lines 81-85
-vim.api.nvim_create_autocmd("InsertLeave", {
-  -- ❌ Missing: group = vim.api.nvim_create_augroup("auto-save", { clear = true })
-  pattern = { "*" },
-  callback = function() vim.cmd("silent! wall") end,
-})
-```
-
-Issues:
-1. No `group` field → duplicates on config re-source
-2. `pattern = { "*" }` fires on *every* buffer, including fugitive, NvimTree, terminals, scratch buffers
-3. No buffer-type guard → attempts to write special buffers
-
-**Fix:**
-```lua
-local group = vim.api.nvim_create_augroup("auto-save", { clear = true })
-vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
-  group = group,
-  callback = function()
-    if vim.bo.buftype == "" and vim.bo.modifiable then
-      vim.cmd("silent! wall")
-    end
-  end,
-})
-```
-
----
-
-### 12. `init.lua` — `vim.g.have_nerd_font` Set After `lazy_init`
-
-**Severity:** MEDIUM
-
-```lua
--- Line 4: lazy_init loaded FIRST
-require("jesse.lazy_init")
-
--- Line 7: have_nerd_font set AFTER
-vim.g.have_nerd_font = true
-```
-
-Plugins that reference `vim.g.have_nerd_font` in their spec (telescope, which-key) evaluate it during spec construction, which happens before this line. They see `nil`.
-
-**Fix:** Move `vim.g.have_nerd_font = true` to line 1, before `lazy_init`.
-
----
-
 ### 13. `languages/elixir.lua` — All Keymaps Use Wrong API, No Descriptions
 
 **Severity:** MEDIUM
