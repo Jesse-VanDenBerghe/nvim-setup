@@ -14,20 +14,18 @@ return {
 			},
 		},
 		opts = {
-			notify_on_error = false,
-			format_on_save = function(bufnr)
-				local disable_filetypes = { c = true, cpp = true }
-				if disable_filetypes[vim.bo[bufnr].filetype] then
-					return nil
-				else
-					return {
-						timeout_ms = 500,
-						lsp_format = "fallback",
-					}
-				end
+			notify_on_error = true,
+			format_on_save = function(_)
+				return {
+					timeout_ms = 2000,
+					lsp_format = "fallback",
+				}
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
+				elixir = { "mix" },
+				eelixir = { "mix" },
+				heex = { "mix" },
 			},
 			formatters = {
 				stylua = { prepend_args = { "--column-width", "120" } },

@@ -10,99 +10,13 @@ The configuration is functional and well-structured for a personal setup. The pr
 
 ## Medium Priority Issues
 
-### 18. `conform.lua` — No Elixir Formatter; Silent Errors
 
-**Severity:** MEDIUM
-
-```lua
--- Lines 30: Only Lua
-formatters_by_ft = { lua = { "stylua" } }
-
--- ❌ No entry for elixir, typescript, kotlin, yaml
--- Falls back to LSP formatter silently
-
--- Line 17: notify_on_error = false
--- ❌ Format failures are completely silent
-```
-
-**Issues:**
-1. No `elixir = { "mix" }` entry (falls back to LSP, undocumented)
-2. `timeout_ms = 500` is too short for `mix format` on larger files
-3. `notify_on_error = false` means failures are invisible
-
----
-
-### 19. `fugitive.lua` — `git add -A` Unguarded and Bypasses Fugitive
-
-**Severity:** MEDIUM
-
-```lua
--- Lines 18, 45: Unguarded git operations
-vim.fn.system("git add -A")  -- ❌ No error check; stages everything blindly
-
--- Line 45: Uses raw shell command instead of fugitive
-map("<leader>ga", ":!git add -A<CR>", "Add all")
--- ❌ Should be: ":Git add -A<CR>" to refresh fugitive status
-```
-
----
-
-### 20. `lsp.lua:125-130` — Inline Completion Block Is Dead Code
-
-**Severity:** MEDIUM
-
-```lua
--- Lines 121-130: After the early return for non-session.status events
--- The entire block has undefined variable references
-```
-
-Either complete the implementation or remove it entirely.
-
----
-
-### 21. `themes.lua:5-6` — `lazy = false` + `event` Contradictory
-
-**Severity:** MEDIUM
-
-```lua
-lazy = false,
-event = "VimEnter",  -- ❌ Redundant; ignored when lazy = false
-```
-
-Remove the `event` field.
-
----
-
-### 22. `lazy/init.lua:6` — `guess-indent.nvim` Never Configured
-
-**Severity:** MEDIUM
-
-```lua
-{
-  "nmac427/guess-indent.nvim",
-  -- ❌ Missing: opts = {} or config = true
-},
-```
-
-The plugin loads but never calls `setup()`. Add `opts = {}` or `config = true`.
-
----
 
 ## Low Priority Issues
 
 ### 23. `harpoon.lua` — Harpoon v1 (Unmaintained)
 
 The config uses harpoon v1 (`master` branch), which is no longer actively maintained. v2 is available (`harpoon2` branch). Consider upgrading or add a comment explaining the v1 choice.
-
----
-
-### 24. `harpoon.lua:9-11` — Tabline Conflict
-
-```lua
-tabline = { enable = true }
-```
-
-Enabling harpoon's tabline can conflict with `lualine` if lualine also has a tabline section. Consider disabling or clarifying the intent.
 
 ---
 

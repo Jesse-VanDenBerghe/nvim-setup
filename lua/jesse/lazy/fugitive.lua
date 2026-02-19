@@ -15,7 +15,11 @@ return {
 			end
 
 			local function gcp_commit_and_push()
-				vim.fn.system("git add -A")
+				local result = vim.fn.system({ "git", "add", "-A" })
+				if vim.v.shell_error ~= 0 then
+					vim.notify("git add -A failed: " .. result, vim.log.levels.ERROR)
+					return
+				end
 				local branch = vim.fn.systemlist("git rev-parse --abbrev-ref HEAD")[1]
 				local ticket = branch:match("([A-Z]+-%d+)")
 
@@ -31,9 +35,8 @@ return {
 			local function gbnd_new_branch_on_default()
 				vim.ui.input({ prompt = "New branch name" }, function(input)
 					if input then
-						local default_branch = vim.fn.systemlist(
-							"git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
-						)[1]
+						local ref = vim.fn.systemlist({ "git", "symbolic-ref", "refs/remotes/origin/HEAD" })[1]
+						local default_branch = ref and ref:match("^refs/remotes/origin/(.+)$") or "main"
 						vim.cmd("Git checkout " .. default_branch)
 						vim.cmd("Git pull")
 						vim.cmd("Git checkout -b " .. input)
@@ -42,7 +45,7 @@ return {
 			end
 
 			vim.keymap.set("n", "<leader>gg", vim.cmd.Git, { desc = "Git" })
-			vim.keymap.set("n", "<leader>ga", ":!git add -A<CR>", { desc = "Git [A]dd" })
+			vim.keymap.set("n", "<leader>ga", ":Git add -A<CR>", { desc = "Git [A]dd" })
 			vim.keymap.set("n", "<leader>gp", ":Git push<CR>", { desc = "Git [P]ush" })
 
 			vim.keymap.set("n", "<leader>gcm", gc_commit, { desc = "Git Commit with [M]essage" })
