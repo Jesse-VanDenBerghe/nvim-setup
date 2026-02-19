@@ -10,22 +10,6 @@ The configuration is functional and well-structured for a personal setup. The pr
 
 ## High Priority Issues
 
-### 3. `telescope.lua:55` — Broken `pcall` Wrapping
-
-**Severity:** HIGH
-
-```lua
--- WRONG (line 55)
-pcall(require("telescope").load_extension("harpoon"))
-
--- CORRECT
-pcall(require("telescope").load_extension, "harpoon")
-```
-
-The return value of `load_extension` is passed to `pcall`, not the function itself. Any error from the harpoon extension load is **unprotected**.
-
----
-
 ### 4. `lsp.lua` — `copilot` in Mason's `ensure_installed`
 
 **Severity:** HIGH
