@@ -1,5 +1,3 @@
-vim.g.copilot_disabled = true
-
 local elixirgroup = vim.api.nvim_create_augroup("ElixirTools", { clear = true })
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "elixir",
@@ -7,6 +5,8 @@ vim.api.nvim_create_autocmd("FileType", {
 	callback = function()
 		local filename = vim.fn.expand("%:t")
 		local filepath = vim.fn.expand("%")
+
+		vim.g.copilot_disabled = true
 
 		-- Build keymaps
 		vim.api.nvim_buf_set_keymap(0, "n", "<leader>bp", ":!mix compile <CR>", { noremap = true, silent = true })
