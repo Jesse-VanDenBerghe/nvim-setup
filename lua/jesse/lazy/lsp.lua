@@ -274,10 +274,9 @@ return {
 					cmd = { "copilot-language-server", "--stdio" },
 					filetypes = { "*" },
 					root_dir = function(fname)
-						return require("lspconfig.util").root_pattern(".git", ".")(fname)
+						return vim.fs.root(fname, { ".git" }) or vim.fn.getcwd()
 					end,
 					single_file_support = true,
-					autostart = not vim.g.copilot_disabled,
 					settings = {
 						telemetry = { telemetryLevel = "all" },
 					},
@@ -352,34 +351,32 @@ return {
 				local clients = vim.lsp.get_clients({ name = "copilot" })
 				if #clients > 0 then
 					vim.lsp.stop_client(clients)
+					vim.lsp.enable("copilot", false)
 					vim.g.copilot_disabled = true
 					vim.notify("Copilot disabled for this session")
 				else
 					vim.g.copilot_disabled = false
-					local copilot_config = servers["copilot"]
-					copilot_config.capabilities =
-						vim.tbl_deep_extend("force", {}, capabilities, copilot_config.capabilities or {})
-					require("lspconfig")["copilot"].setup(copilot_config)
+					vim.lsp.enable("copilot")
 					vim.notify("Copilot enabled")
 				end
 			end, { desc = "Toggle Copilot for this session" })
 
 			vim.keymap.set("n", "<leader>lc", "<cmd>CopilotToggle<cr>", { desc = "Toggle Copilot" })
 
-			-- Ensure the servers and tools above are installed
-			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			--
-			-- `mason` had to be setup earlier: to configure its options see the
-			-- `dependencies` table for `nvim-lspconfig` above.
-			--
-			-- You can add other tools here that you want Mason to install
-			-- for you, so that they are available from within Neovim.
-			local ensure_installed = vim.tbl_keys(servers or {})
+			-- Ensure the servers and tools above are installed.
+			-- "copilot" is not a Mason package (binary: copilot-language-server) and is not a
+			-- built-in lspconfig server, so configure it via the native vim.lsp API (nvim 0.11+)
+			-- and exclude it from mason-tool-installer.
+			local copilot_config = servers["copilot"]
+			if copilot_config then
+				copilot_config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, copilot_config.capabilities or {})
+				vim.lsp.config("copilot", copilot_config)
+				vim.lsp.enable("copilot")
+			end
+
+			local ensure_installed = vim.tbl_filter(function(name)
+				return name ~= "copilot"
+			end, vim.tbl_keys(servers or {}))
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 				"elixir-ls",
@@ -393,6 +390,10 @@ return {
 				automatic_installation = false,
 				handlers = {
 					function(server_name)
+						-- copilot is set up directly above; skip it here
+						if server_name == "copilot" then
+							return
+						end
 						local server = servers[server_name] or {}
 						-- This handles overriding only values explicitly passed
 						-- by the server configuration above. Useful when disabling
