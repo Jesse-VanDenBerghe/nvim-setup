@@ -50,8 +50,8 @@ return {
 			})
 
 		-- Enable Telescope extensions if they are installed
-		pcall(require("telescope").load_extension, "fzf")
-		pcall(require("telescope").load_extension, "ui-select")
+		pcall(function() require("telescope").load_extension("fzf") end)
+		pcall(function() require("telescope").load_extension("ui-select") end)
 
 			local builtin = require("telescope.builtin")
 
