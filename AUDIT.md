@@ -8,21 +8,6 @@ The configuration is functional and well-structured for a personal setup. The pr
 
 ## Critical Bugs
 
-
-### 2. `languages/elixir.lua` — Copilot Disabled Globally (line 1)
-
-**Severity:** CRITICAL
-
-```lua
-vim.g.copilot_disabled = true  -- ❌ line 1, MODULE TOP LEVEL
-```
-
-When `languages_init.lua` requires this file at startup, it sets this global *before any buffer is opened*. The `lsp.lua:280` check `autostart = not vim.g.copilot_disabled` sees this and **disables Copilot for every filetype**, not just Elixir.
-
-**Impact:** Copilot doesn't work on any file.
-
----
-
 ## High Priority Issues
 
 ### 3. `telescope.lua:55` — Broken `pcall` Wrapping
