@@ -3,7 +3,11 @@ return {
 	priority = 1000,
 	lazy = false,
 	opts = {
+		animate = { enabled = true },
 		input = { enabled = true },
+		bufdelete = { enabled = true },
+		dim = { enabled = true },
+		bigfile = { enabled = true },
 		debug = { enabled = true },
 		explorer = { enabled = true },
 		picker = { enabled = true },
