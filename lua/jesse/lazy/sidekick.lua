@@ -31,16 +31,26 @@ return {
 		{
 			"<leader>aa",
 			function()
-				require("sidekick.cli").toggle()
+				local preferred_tool = "opencode"
+				local State = require("sidekick.cli.state")
+				local orig_get = State.get
+				State.get = function()
+					State.get = orig_get
+					local tools = vim.tbl_filter(function(t)
+						return t.installed and not t.external
+					end, orig_get())
+					table.sort(tools, function(a, b)
+						if a.tool.name ~= b.tool.name then
+							if a.tool.name == preferred_tool then return true end
+							if b.tool.name == preferred_tool then return false end
+						end
+						return a.tool.name < b.tool.name
+					end)
+					return tools
+				end
+				require("sidekick.cli").select()
 			end,
 			desc = "AI Toggle CLI",
-		},
-		{
-			"<leader>ac",
-			function()
-				require("sidekick.cli").toggle({ name = "opencode", focus = true })
-			end,
-			desc = "AI Toggle OpenCode",
 		},
 		{
 			"<leader>as",
