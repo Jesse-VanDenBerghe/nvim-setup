@@ -5,6 +5,7 @@ class TestClass {
 
     fun test2() {
         println("test2")
+        this.test()
     }
 }
 

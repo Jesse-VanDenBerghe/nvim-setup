@@ -216,19 +216,6 @@ return {
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
-				-- clangd = {},
-				-- gopls = {},
-				-- pyright = {},
-				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				--
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				--
-				-- But for many setups, the LSP (`ts_ls`) will work just fine
-				-- ts_ls = {},
-				--
-
 				yamlls = {},
 				lua_ls = {
 					-- cmd = { ... },
@@ -243,23 +230,6 @@ return {
 							diagnostics = { disable = { "missing-fields" } },
 						},
 					},
-				},
-				kotlin_lsp = {
-					-- --isolated-documents gives each file its own scope so the server
-					-- attaches even to standalone .kts scripts with no Gradle root.
-					cmd = { "kotlin-lsp", "--stdio", "--isolated-documents" },
-					root_dir = function(fname)
-						-- Prefer a real Gradle/Maven project root; fall back to the
-						-- file's own directory so standalone scripts are covered.
-						local root = vim.fs.root(fname, {
-							"settings.gradle",
-							"settings.gradle.kts",
-							"build.gradle",
-							"build.gradle.kts",
-							"pom.xml",
-						})
-						return root or vim.fn.fnamemodify(fname, ":h")
-					end,
 				},
 				elixirls = {
 					filetypes = { "elixir", "eelixir", "heex", "surface" },
@@ -305,8 +275,7 @@ return {
 				handlers = {
 					function(server_name)
 						-- copilot is set up directly above; skip it here.
-						-- kotlin_language_server (fwcd/javacs) conflicts with kotlin_lsp; skip it.
-						if server_name == "copilot" or server_name == "kotlin_language_server" then
+						if server_name == "copilot" then
 							return
 						end
 						local server = servers[server_name] or {}
