@@ -43,25 +43,31 @@ return {
 				},
 			},
 
-			spec = {
-				{ "<leader>f", group = "[F]ind" },
-				{ "<leader>h", group = "[H]arpoon" },
-				{ "<leader>e", group = "[E]xplorer" },
-				{ "<leader>t", group = "[T]est" },
-				{ "<leader>r", group = "[R]un" },
-				{ "<leader>b", group = "[B]uild" },
-				{ "<leader>s", group = "[S]earch" },
+		spec = {
+			{ "<leader>f", group = "[F]ind" },
+			{ "<leader>h", group = "[H]arpoon" },
+			{ "<leader>e", group = "[E]xplorer" },
+			{ "<leader>t", group = "[T]est" },
+			{ "<leader>r", group = "[R]un" },
+			{ "<leader>b", group = "[B]uild / Buffer" },
+			{ "<leader>s", group = "[S]earch / Grep" },
 
-				{ "<leader>l", group = "[L]SP" },
-				{ "<leader>lr", group = "[R]efactor" },
-				{ "<leader>lg", group = "[G]o" },
+			{ "<leader>l", group = "[L]SP" },
+			{ "<leader>lr", group = "[R]efactor" },
+			{ "<leader>lg", group = "[G]oto" },
+			{ "<leader>lt", group = "[T]oggle" },
 
-				{ "<leader>g", group = "[G]it" },
-				{ "<leader>gc", group = "[C]ommit" },
-				{ "<leader>gb", group = "[B]ranch" },
+			{ "<leader>g", group = "[G]it" },
+			{ "<leader>gc", group = "[C]ommit" },
+			{ "<leader>gb", group = "[B]ranch" },
+			{ "<leader>gP", group = "[P]ull Requests" },
 
-				{ "<leader>a", group = "[A]I" },
-			},
+			{ "<leader>a", group = "[A]I / Copilot" },
+
+			{ "<leader>c", group = "[C]ode" },
+			{ "<leader>u", group = "[U]I Toggles" },
+			{ "<leader>x", group = "Diagnostics / Trouble" },
+		},
 		},
 		keys = {
 			{
