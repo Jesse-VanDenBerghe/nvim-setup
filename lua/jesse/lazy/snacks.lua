@@ -11,6 +11,10 @@ return {
 		git = { enabled = true },
 		gh = { enabled = true },
 		gitbrowse = { enabled = true },
+		image = { enabled = true },
+		indent = { enabled = true },
+		notify = { enabled = true },
+		notifier = { enabled = true },
 		dashboard = require("jesse.lazy.snacks.dashboard"),
 	},
 	keys = {
