@@ -28,8 +28,12 @@ by launching Neovim and observing runtime behaviour.
     │   ├── mini.lua                # mini.nvim: ai, surround, move, pairs, cmdline
     │   ├── which-key.lua           # Keymap discovery & group labels
     │   ├── lualine.lua             # Status line
+    │   ├── flash.lua               # folke/flash.nvim motion (s, S)
     │   ├── render-markdown.lua     # Markdown rendering (ft-loaded)
+    │   ├── sidekick.lua            # folke/sidekick.nvim — NES, AI CLI (<c-.>)
     │   ├── themes.lua              # Colorscheme (onedark, warmer, transparent)
+    │   ├── todo-comments.lua       # folke/todo-comments.nvim
+    │   ├── trouble.lua             # folke/trouble.nvim diagnostics UI
     │   ├── snacks.lua              # folke/snacks.nvim — picker, explorer, git, …
     │   └── snacks/
     │       └── dashboard.lua       # Dashboard config, required by snacks.lua
@@ -61,7 +65,7 @@ with Mason (`:Mason`) or `cargo install stylua`.
 ### CLI validation (outside Neovim)
 
 ```bash
-# Validate that init.lua at least parses without errors
+# Validate that the config loads without errors
 nvim --headless -c 'lua print("ok")' -c 'qa'
 
 # Check a single Lua file for syntax errors
@@ -91,52 +95,56 @@ mix test path/to/test_file.exs:42
 
 ### General Lua conventions
 
-- **Indentation**: hard tabs rendered at 4 spaces (`vim.opt.tabstop = 4`,
-  `expandtab = true`; stylua normalises on save).
+- **Indentation**: hard tabs rendered at 4 spaces; stylua normalises on save.
 - **Line length**: 120 characters maximum.
-- **Quotes**: double quotes for strings throughout.
-- **Semicolons**: not used.
+- **Quotes**: double quotes for all strings throughout.
+- **Semicolons**: never used.
 
-Note: `lazy_init.lua` and `treesitter.lua` use 4-space soft-indent — an
-inconsistency tolerated in existing files. Prefer tabs in new files.
+Note: `lazy_init.lua`, `treesitter.lua`, `gitsigns.lua`, `flash.lua`,
+`trouble.lua`, and `todo-comments.lua` use 4-space soft-indent — a tolerated
+inconsistency in existing files. Prefer hard tabs in all new files.
 
 ### Module / file structure
 
 - Each plugin gets its **own file** inside `lua/jesse/lazy/`.
 - Sub-directories under `lazy/` are allowed when a plugin needs multiple files
   (e.g. `snacks/dashboard.lua` is `require`d by `snacks.lua`).
-- Files return a **lazy.nvim plugin spec table** (`return { … }`). Use
-  `config = function() … end` for non-trivial setup; use `opts = {}` for
-  plugins that accept a single options table.
-- Language-specific setup lives in `lua/jesse/languages/<lang>.lua`.
+- Files return a **lazy.nvim plugin spec table** (`return { … }`).
+  - Use `opts = {}` for plugins accepting a single options table.
+  - Use `config = function() … end` for non-trivial setup.
+- Language-specific setup lives in `lua/jesse/languages/<lang>.lua` and is
+  auto-discovered — no manual registration needed.
 
 ### Imports / requires
 
 - Use `require("module.path")` everywhere; no `dofile` / `loadfile`.
-- Prefer local assignment at the top of a `config` function:
+- Prefer a local alias at the top of a `config` function:
   ```lua
-  local builtin = require("telescope.builtin")
+  local harpoon = require("harpoon")
   ```
 - Wrap potentially-missing requires in `pcall`:
   ```lua
-  pcall(require("telescope").load_extension, "fzf")
+  local ok, status = pcall(require, "sidekick.status")
+  if not ok then return end
   ```
 - **Exception**: `Snacks` (capital S) is an intentional implicit global
-  injected by `snacks.nvim`. Do not `require` it locally — use `Snacks.*`
+  injected by `snacks.nvim`. Never `require` it locally — use `Snacks.*`
   directly. This is the only sanctioned implicit global.
 
 ### Keymaps
 
-- Always supply a `desc` field:
+- Always supply a `desc` field using bracket notation for the mnemonic key:
   ```lua
-  vim.keymap.set("n", "<leader>ff", fn, { desc = "Find Files" })
+  vim.keymap.set("n", "<leader>ha", fn, { desc = "[H]arpoon [A]dd file" })
   ```
-- For lazy-loaded plugins, declare keymaps in the `keys = {}` field of the
-  plugin spec (lazy.nvim form) rather than in `config`:
+- LSP keymaps use a local `map` helper that prepends `"LSP: "` to the desc.
+- For lazy-loaded plugins, declare keymaps in the `keys = {}` spec field rather
+  than inside `config`:
   ```lua
   keys = { { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" } }
   ```
-- Both `vim.g.mapleader` and `vim.g.maplocalleader` are `" "` (space).
+- Both `vim.g.mapleader` and `vim.g.maplocalleader` are `" "` (space), set at
+  the very top of `lua/jesse/init.lua` before any `require`.
 - Use the `<leader>` prefix hierarchy from `which-key.lua`:
   - `<leader>f` — Find
   - `<leader>h` — Harpoon
@@ -147,32 +155,46 @@ inconsistency tolerated in existing files. Prefer tabs in new files.
   - `<leader>b` — Build
   - `<leader>l` — LSP (`lr` Refactor, `lg` Go)
   - `<leader>g` — Git (`gc` Commit, `gb` Branch)
+  - `<leader>a` — AI / Copilot / Sidekick
 
 ### Autocmds
 
-- Always create a named augroup with `{ clear = true }` to avoid duplicate
+- Always create a named augroup with `{ clear = true }` to prevent duplicate
   registrations on re-source:
   ```lua
-  local group = vim.api.nvim_create_augroup("MyGroup", { clear = true })
+  local group = vim.api.nvim_create_augroup("my-group", { clear = true })
   vim.api.nvim_create_autocmd("FileType", { group = group, … })
   ```
+- Use `{ clear = false }` only for augroups that accumulate per-buffer entries
+  (e.g. `"kickstart-lsp-highlight"`, `"copilot-inline-completion"`).
+- **Augroup naming**: `kebab-case` for core / LSP groups; `PascalCase` for
+  per-language groups (e.g. `"ElixirTools"`).
 - **Auto-save is active globally**: `lua/jesse/init.lua` registers an
-  `InsertLeave` + `TextChanged` autocmd (group `"auto-save"`) that runs
-  `silent! wall` on every change. Any agent-generated file with `buftype == ""`
-  and `modifiable == true` will be silently written to disk immediately.
+  `InsertLeave` + `TextChanged` autocmd (`"auto-save"` group) that runs
+  `silent! wall` on every change. Any modifiable buffer will be written to disk
+  immediately — be aware when creating temporary buffers.
 
-### Buffer-local user commands
+### Language files (`languages/<lang>.lua`)
 
-Use `vim.api.nvim_buf_create_user_command` for commands that only make sense
-in a specific buffer context (e.g. Copilot's `:LspCopilotSignIn`):
-```lua
-vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", function() … end, {})
-```
+- Create one augroup per file (PascalCase, e.g. `"KotlinTools"`).
+- Use `LspAttach` with `pattern = { "*.ext" }` for LSP-level operations (like
+  Copilot detach) to avoid filetype timing issues.
+- Use `FileType` autocmds with `buffer = true` for per-buffer keymaps:
+  ```lua
+  vim.api.nvim_create_autocmd("FileType", {
+      pattern = "elixir",
+      group = elixirgroup,
+      callback = function()
+          vim.keymap.set("n", "<leader>tp", fn, { buffer = true, desc = "Test project" })
+      end,
+  })
+  ```
 
 ### Naming conventions
 
-- **Variables / locals**: `snake_case` (e.g. `languages_dir`).
+- **Variables / locals**: `snake_case` (e.g. `languages_dir`, `copilot_config`).
 - **Augroup names**: `kebab-case` strings (e.g. `"kickstart-lsp-attach"`).
+- **Language augroup names**: `PascalCase` (e.g. `"ElixirTools"`).
 - **Boolean guards**: prefer early-return style rather than deep nesting.
 - **Helper functions**: define inline with `local function name() … end` inside
   `config` closures rather than at module level.
@@ -180,19 +202,35 @@ vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", function() … e
 ### Error handling
 
 - Use `pcall` for operations that may fail (require, extension loading).
+- Check `vim.v.shell_error` after `vim.fn.system()` calls; use early return:
+  ```lua
+  local result = vim.fn.system({ "git", "add", "-A" })
+  if vim.v.shell_error ~= 0 then
+      vim.notify("git add failed: " .. result, vim.log.levels.ERROR)
+      return
+  end
+  ```
 - Propagate LSP errors via `vim.notify(err.message, vim.log.levels.ERROR)`.
-- Use `error(msg)` (not `assert`) for fatal setup steps.
-- Do **not** silently swallow errors — log them with `vim.notify`.
+- Use `error(msg)` (not `assert`) for fatal bootstrap/setup failures.
+- Do **not** silently swallow errors — log them with `vim.notify`. Exception:
+  `languages_init.lua` uses bare `pcall(require, module)` — intentional since
+  missing language files are non-fatal.
 
 ### Shell calls from keymaps
 
-Simple one-shot git operations use `vim.fn.system` / `vim.fn.systemlist`
-synchronously (not `vim.fn.jobstart`). A recurring pattern is branch-name
-ticket extraction for commit messages:
+Use `vim.fn.system` / `vim.fn.systemlist` synchronously (not `vim.fn.jobstart`).
+A recurring pattern is branch-name ticket extraction for commit messages:
 ```lua
 local branch = vim.fn.systemlist("git rev-parse --abbrev-ref HEAD")[1]
 local ticket = branch:match("([A-Z]+-%d+)")
 local message = ticket and (ticket .. ": " .. input) or input
+```
+
+### Buffer-local user commands
+
+Use `vim.api.nvim_buf_create_user_command` for commands scoped to a buffer:
+```lua
+vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", function() … end, {})
 ```
 
 ### Type annotations
@@ -238,8 +276,8 @@ Managed by Mason (`mason-org/mason.nvim` + `mason-org/mason-lspconfig.nvim` +
 - `copilot` — AI inline completions (see below)
 
 To add a new server, append it to the `servers` table in
-`lua/jesse/lazy/lsp.lua:227`. The `ensure_installed` list is built dynamically
-from that table at `lsp.lua:394`.
+`lua/jesse/lazy/lsp.lua`. The `ensure_installed` list is built dynamically
+from that same table (Copilot is excluded — it uses a different API).
 
 ### Copilot (native LSP, nvim 0.11+)
 
@@ -247,7 +285,7 @@ Copilot is wired as a **native LSP client** using the `vim.lsp.config` /
 `vim.lsp.enable` API (nvim 0.11+), not a plugin like `copilot.lua`. It
 exposes `:CopilotToggle`, `:LspCopilotSignIn`, and `:LspCopilotSignOut`
 commands. Inline completion via `vim.lsp.inline_completion` is guarded for
-nvim 0.12 nightly.
+nvim 0.12+ nightly.
 
 **Copilot is intentionally detached from Elixir buffers**: `languages/elixir.lua`
 has an `LspAttach` autocmd that calls `vim.lsp.buf_detach_client()` for any
