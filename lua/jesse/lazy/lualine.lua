@@ -4,8 +4,6 @@ return {
 		"nvim-tree/nvim-web-devicons",
 	},
 	config = function()
-		require("lualine").setup({
-			sections = {},
-		})
+		require("lualine").setup({})
 	end,
 }
