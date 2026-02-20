@@ -112,7 +112,7 @@ function M.setup(capabilities)
 		end
 	end, { desc = "Toggle Copilot (optional: true/false)", nargs = "?" })
 
-	vim.keymap.set("n", "<leader>ai", M.toggle, { desc = "[A]I Cop[i]lot Toggle" })
+	vim.keymap.set("n", "<leader>act", M.toggle, { desc = "[A]I Cop[i]lot Toggle" })
 end
 
 return M

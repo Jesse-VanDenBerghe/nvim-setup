@@ -53,13 +53,9 @@ return {
 			desc = "AI Toggle CLI",
 		},
 		{
-			"<leader>as",
+			"<leader>ai",
 			function()
-				vim.ui.input({ prompt = "Prompt AI:" }, function(input)
-					if input then
-						require("sidekick.cli").send({ msg = input })
-					end
-				end)
+				require("sidekick.cli").focus()
 			end,
 			desc = "AI Send prompt to CLI",
 		},
