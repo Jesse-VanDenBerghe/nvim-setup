@@ -244,16 +244,22 @@ return {
 						},
 					},
 				},
-				kotlin_language_server = {
-					settings = {
-						kotlin = {
-							compiler = {
-								jvm = {
-									target = "17",
-								},
-							},
-						},
-					},
+				kotlin_lsp = {
+					-- --isolated-documents gives each file its own scope so the server
+					-- attaches even to standalone .kts scripts with no Gradle root.
+					cmd = { "kotlin-lsp", "--stdio", "--isolated-documents" },
+					root_dir = function(fname)
+						-- Prefer a real Gradle/Maven project root; fall back to the
+						-- file's own directory so standalone scripts are covered.
+						local root = vim.fs.root(fname, {
+							"settings.gradle",
+							"settings.gradle.kts",
+							"build.gradle",
+							"build.gradle.kts",
+							"pom.xml",
+						})
+						return root or vim.fn.fnamemodify(fname, ":h")
+					end,
 				},
 				elixirls = {
 					filetypes = { "elixir", "eelixir", "heex", "surface" },
@@ -281,6 +287,7 @@ return {
 			}
 
 			local ensure_installed = vim.tbl_filter(function(name)
+				-- copilot is managed separately
 				return name ~= "copilot"
 			end, vim.tbl_keys(servers or {}))
 			vim.list_extend(ensure_installed, {
@@ -288,6 +295,7 @@ return {
 				"elixir-ls",
 				"tailwindcss-language-server",
 				"typescript-language-server",
+				"ktlint",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -296,8 +304,9 @@ return {
 				automatic_installation = false,
 				handlers = {
 					function(server_name)
-						-- copilot is set up directly above; skip it here
-						if server_name == "copilot" then
+						-- copilot is set up directly above; skip it here.
+						-- kotlin_language_server (fwcd/javacs) conflicts with kotlin_lsp; skip it.
+						if server_name == "copilot" or server_name == "kotlin_language_server" then
 							return
 						end
 						local server = servers[server_name] or {}

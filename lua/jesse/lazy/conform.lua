@@ -20,12 +20,13 @@ return {
 		},
 		opts = {
 			notify_on_error = true,
-			formatters_by_ft = {
-				lua = { "stylua" },
-				elixir = { "mix" },
-				eelixir = { "mix" },
-				heex = { "mix" },
-			},
+		formatters_by_ft = {
+			lua = { "stylua" },
+			elixir = { "mix" },
+			eelixir = { "mix" },
+			heex = { "mix" },
+			kotlin = { "ktlint" },
+		},
 		},
 	},
 }
