@@ -45,9 +45,13 @@ return {
 		{
 			"<leader>as",
 			function()
-				require("sidekick.cli").select()
+				vim.ui.input({ prompt = "Prompt AI:" }, function(input)
+					if input then
+						require("sidekick.cli").send({ msg = input })
+					end
+				end)
 			end,
-			desc = "AI Select CLI",
+			desc = "AI Send prompt to CLI",
 		},
 		{
 			"<leader>ad",
