@@ -5,9 +5,14 @@ return {
 		cmd = { "ConformInfo" },
 		keys = {
 			{
-				"<leader>f",
+				"<leader>uf",
 				function()
-					require("conform").format({ async = true, lsp_format = "fallback" })
+					vim.notify("Formatting...", vim.log.levels.TRACE)
+					require("conform").format({ async = true, lsp_format = "fallback" }, function(err)
+						if not err then
+							vim.notify("Formatted", vim.log.levels.INFO)
+						end
+					end)
 				end,
 				mode = "",
 				desc = "[F]ormat buffer",
@@ -15,20 +20,11 @@ return {
 		},
 		opts = {
 			notify_on_error = true,
-			format_on_save = function(_)
-				return {
-					timeout_ms = 2000,
-					lsp_format = "fallback",
-				}
-			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
 				elixir = { "mix" },
 				eelixir = { "mix" },
 				heex = { "mix" },
-			},
-			formatters = {
-				stylua = { prepend_args = { "--column-width", "120" } },
 			},
 		},
 	},

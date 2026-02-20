@@ -22,7 +22,8 @@ return {
 		config = function()
 			-- NOTE: vim.lsp.inline_completion is a Neovim nightly (0.12+) API.
 			-- Guard against its absence on stable 0.11 so the block is a no-op there.
-			if vim.lsp.inline_completion then
+			local ic = vim.lsp.inline_completion
+			if ic and ic.enable and ic.get then
 				vim.api.nvim_create_autocmd("LspAttach", {
 					group = vim.api.nvim_create_augroup("copilot-inline-completion", { clear = false }),
 					callback = function(args)
@@ -33,18 +34,21 @@ return {
 							client
 							and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion, bufnr)
 						then
-							vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+							ic.enable(true, { bufnr = bufnr })
 
 							-- Trigger / cycle through inline completions.
-						vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
-							desc = "LSP: trigger inline completion",
-							buffer = bufnr,
-						})
-						vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
-							desc = "LSP: cycle inline completion",
-							buffer = bufnr,
-						})
-
+							vim.keymap.set("i", "<C-F>", ic.get, {
+								desc = "LSP: trigger inline completion",
+								buffer = bufnr,
+							})
+							vim.keymap.set("i", "<C-G>", ic.select or ic.get, {
+								desc = "LSP: cycle inline completion",
+								buffer = bufnr,
+							})
+							vim.keymap.set("i", "<C-CR>", ic.select or ic.get, {
+								desc = "LSP: accept inline completion",
+								buffer = bufnr,
+							})
 						end
 					end,
 				})
@@ -128,7 +132,7 @@ return {
 						)
 					then
 						local highlight_augroup =
-							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
+						vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
 							group = highlight_augroup,
@@ -199,6 +203,8 @@ return {
 			--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
 			--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
 			local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+			require("jesse.copilot").setup(capabilities)
 
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -272,106 +278,7 @@ return {
 					},
 				},
 				ts_ls = {},
-			copilot = {
-				cmd = { "copilot-language-server", "--stdio" },
-				root_markers = { ".git" },
-				single_file_support = true,
-				settings = {
-					telemetry = { telemetryLevel = "all" },
-				},
-				init_options = {
-					editorInfo = { name = "Neovim", version = tostring(vim.version()) },
-					editorPluginInfo = { name = "Neovim", version = tostring(vim.version()) },
-				},
-				on_attach = function(client, bufnr)
-					local function sign_in()
-						client:request("signIn", vim.empty_dict(), function(err, result)
-							if err then
-								vim.notify(err.message, vim.log.levels.ERROR)
-								return
-							end
-							if result.command then
-								local code = result.userCode
-								vim.fn.setreg("+", code)
-								vim.fn.setreg("*", code)
-								local continue = vim.fn.confirm(
-									"Copied your one-time code to clipboard.\nOpen the browser to complete the sign-in process?",
-									"&Yes\n&No"
-								)
-								if continue == 1 then
-									client:exec_cmd(result.command, { bufnr = bufnr }, function(cmd_err, cmd_result)
-										if cmd_err then
-											vim.notify(cmd_err.message, vim.log.levels.ERROR)
-											return
-										end
-										if cmd_result.status == "OK" then
-											vim.notify("Signed in as " .. cmd_result.user .. ".")
-										end
-									end)
-								end
-							end
-							if result.status == "PromptUserDeviceFlow" then
-								vim.notify(
-									"Enter your one-time code "
-										.. result.userCode
-										.. " in "
-										.. result.verificationUri
-								)
-							elseif result.status == "AlreadySignedIn" then
-								vim.notify("Already signed in as " .. result.user .. ".")
-							end
-						end)
-					end
-
-					local function sign_out()
-						client:request("signOut", vim.empty_dict(), function(err, result)
-							if err then
-								vim.notify(err.message, vim.log.levels.ERROR)
-								return
-							end
-							if result.status == "NotSignedIn" then
-								vim.notify("Not signed in.")
-							end
-						end)
-					end
-
-					vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", sign_in, {
-						desc = "Sign in Copilot with GitHub",
-					})
-					vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignOut", sign_out, {
-						desc = "Sign out Copilot with GitHub",
-					})
-				end,
-			},
 			}
-
-			-- Copilot toggle command (session only)
-			vim.api.nvim_create_user_command("CopilotToggle", function()
-				local clients = vim.lsp.get_clients({ name = "copilot" })
-				if #clients > 0 then
-					vim.lsp.stop_client(clients)
-					vim.lsp.enable("copilot", false)
-					vim.g.copilot_disabled = true
-					vim.notify("Copilot disabled for this session")
-				else
-					vim.g.copilot_disabled = false
-					vim.lsp.enable("copilot")
-					vim.notify("Copilot enabled")
-				end
-			end, { desc = "Toggle Copilot for this session" })
-
-			vim.keymap.set("n", "<leader>lc", "<cmd>CopilotToggle<cr>", { desc = "Toggle Copilot" })
-
-			-- Ensure the servers and tools above are installed.
-			-- "copilot" is not a Mason package (binary: copilot-language-server) and is not a
-			-- built-in lspconfig server, so configure it via the native vim.lsp API (nvim 0.11+)
-			-- and exclude it from mason-tool-installer.
-			local copilot_config = servers["copilot"]
-			if copilot_config then
-				copilot_config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, copilot_config.capabilities or {})
-				vim.lsp.config("copilot", copilot_config)
-				vim.lsp.enable("copilot")
-			end
 
 			local ensure_installed = vim.tbl_filter(function(name)
 				return name ~= "copilot"

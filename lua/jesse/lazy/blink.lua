@@ -36,30 +36,38 @@ return {
 		--- @type blink.cmp.Config
 		opts = {
 			keymap = {
-				-- Explicit <Tab> chain:
-				--   1. snippet_forward  (LuaSnip jump to next placeholder)
-				--   2. sidekick NES     (jump to / apply Next Edit Suggestion)
-				--   3. inline_completion (Copilot inline — nvim 0.12+ only, guarded)
-				--   4. fallback         (default tab behaviour)
+			-- Explicit <Tab> chain:
+			--   1. select_and_accept  (accept blink suggestion when menu is open)
+			--   2. snippet_forward    (LuaSnip jump to next placeholder)
+			--   3. inline_completion  (cycle Copilot inline suggestion if enabled, nvim 0.12+)
+			--   4. sidekick NES       (jump to / apply Next Edit Suggestion)
+			--   5. fallback           (default tab behaviour)
+			-- <S-CR> also cycles Copilot inline completion (set in lsp.lua).
 				-- <s-tab>/<c-space>/<c-n>/<c-p>/<c-e>/<c-k> come from the 'default' preset.
 				--
 				-- See :h blink-cmp-config-keymap for defining your own keymap.
 				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
 				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
 				preset = "default",
-				["<Tab>"] = {
-					"snippet_forward",
-					function() -- sidekick: jump/apply Next Edit Suggestion
-						return require("sidekick").nes_jump_or_apply()
-					end,
-					function() -- Copilot inline completion (nvim 0.12+ nightly only)
-						if vim.lsp.inline_completion then
-							return vim.lsp.inline_completion.get()
-						end
-					end,
-					"fallback",
-				},
+			["<Tab>"] = {
+				"select_and_accept",
+				"snippet_forward",
+				function(cmp) -- copilot: accept/cycle inline completion if enabled
+					local ic = vim.lsp.inline_completion
+					-- is_enabled() returns true only when inline completion is active
+					-- for the current buffer; return false to fall through otherwise.
+					if ic and ic.is_enabled and ic.is_enabled() then
+						return ic.get()
+					end
+					return false
+				end,
+				function() -- sidekick: jump/apply Next Edit Suggestion
+					return require("sidekick").nes_jump_or_apply()
+				end,
+				"fallback",
+			},
 				["<S-Tab>"] = { "snippet_backward", "fallback" },
+				["<CR>"] = { "select_and_accept", "fallback" },
 			},
 
 			appearance = {
