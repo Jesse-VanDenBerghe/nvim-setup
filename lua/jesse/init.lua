@@ -77,6 +77,32 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+vim.keymap.set("n", "<leader>rc", function()
+	vim.ui.input({ prompt = "Command: " }, function(input)
+		if not input or input == "" then
+			return
+		end
+		local cmd = vim.split(input, "%s+")
+		require("jesse.util").run_notify(cmd, input)
+	end)
+end, { desc = "[R]un [C]ommand" })
+
+vim.keymap.set("n", "<leader>rt", function()
+	vim.ui.input({ prompt = "Terminal command: " }, function(input)
+		if not input or input == "" then
+			return
+		end
+		vim.cmd("split")
+		vim.cmd("wincmd J")
+		vim.cmd("resize 15")
+		local buf = vim.api.nvim_create_buf(false, true)
+		vim.api.nvim_set_current_buf(buf)
+		vim.fn.termopen(input)
+		vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>bd!<CR>", { noremap = true, silent = true, desc = "Close terminal" })
+		vim.cmd("startinsert")
+	end)
+end, { desc = "[R]un [T]erminal command" })
+
 local auto_save_group = vim.api.nvim_create_augroup("auto-save", { clear = true })
 vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
 	group = auto_save_group,

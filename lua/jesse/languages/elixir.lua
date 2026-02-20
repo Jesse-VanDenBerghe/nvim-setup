@@ -1,5 +1,7 @@
-local elixirgroup = vim.api.nvim_create_augroup("ElixirTools", { clear = true })
+local util = require("jesse.util")
+local run_notify = util.run_notify
 
+local elixirgroup = vim.api.nvim_create_augroup("ElixirTools", { clear = true })
 
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "elixir",
@@ -12,7 +14,7 @@ vim.api.nvim_create_autocmd("FileType", {
 			"n",
 			"<leader>bp",
 			function()
-				vim.cmd("!mix compile")
+				run_notify({ "mix", "compile" }, "mix compile")
 			end,
 			{ buffer = true, desc = "Build project (mix compile)" }
 		)
@@ -22,7 +24,7 @@ vim.api.nvim_create_autocmd("FileType", {
 			"n",
 			"<leader>rf",
 			function()
-				vim.cmd("!mix run " .. vim.fn.expand("%"))
+				run_notify({ "mix", "run", vim.fn.expand("%") }, "mix run")
 			end,
 			{ buffer = true, desc = "Run file (mix run)" }
 		)
@@ -32,7 +34,7 @@ vim.api.nvim_create_autocmd("FileType", {
 				"n",
 				"<leader>rs",
 				function()
-					vim.cmd("!elixir " .. vim.fn.expand("%"))
+					run_notify({ "elixir", vim.fn.expand("%") }, "elixir script")
 				end,
 				{ buffer = true, desc = "Run script (elixir)" }
 			)
@@ -43,7 +45,7 @@ vim.api.nvim_create_autocmd("FileType", {
 			"n",
 			"<leader>tp",
 			function()
-				vim.cmd("!mix test")
+				run_notify({ "mix", "test" }, "mix test")
 			end,
 			{ buffer = true, desc = "Test project (mix test)" }
 		)
@@ -52,7 +54,7 @@ vim.api.nvim_create_autocmd("FileType", {
 			"n",
 			"<leader>tf",
 			function()
-				vim.cmd("!mix test " .. vim.fn.expand("%"))
+				run_notify({ "mix", "test", vim.fn.expand("%") }, "mix test file")
 			end,
 			{ buffer = true, desc = "Test file (mix test)" }
 		)
