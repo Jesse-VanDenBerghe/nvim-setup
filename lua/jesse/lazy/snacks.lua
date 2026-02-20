@@ -19,19 +19,13 @@ return {
 		{ "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
 		{ "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
 		{ "<leader>e", function() Snacks.explorer() end, desc = "Explorer" },
-		-- Explorer
-		{ "<leader>et", function() Snacks.explorer() end, desc = "Explorer: Toggle" },
-		{ "<leader>ef", function() Snacks.explorer({ focus = true }) end, desc = "Explorer: Focus" },
-		-- Finder
-		{ "<leader>ff", function() Snacks.picker.files({ hidden = true, ignored = true }) end, desc = "Find Files" },
-		{ "<leader>fs", function() Snacks.picker.grep({ hidden = true, ignored = true }) end, desc = "Find with Live Grep" },
-		{ "<leader>fh", function() Snacks.picker.help() end, desc = "Find Help Tags" },
-		{ "<leader>fo", function() Snacks.picker.recent() end, desc = "Find old Files" },
-		{ "<leader>fc", function() Snacks.picker.commands() end, desc = "Find Commands" },
-		{ "<leader>fk", function() Snacks.picker.keymaps() end, desc = "Find Keymaps" },
-		{ "<leader>fr", function() Snacks.picker.registers() end, desc = "Find Registers" },
-		{ "<leader>fm", function() Snacks.picker.marks() end, desc = "Find Marks" },
-		{ "<leader>fd", function() Snacks.picker.man() end, desc = "Find Man Pages" },
+		-- Find
+		{ "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
+		{ "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
+		{ "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
+		{ "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
+		{ "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
+		{ "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
 		-- Git
 		{ "<leader>gg", function() Snacks.lazygit() end, desc = "Git" },
 		{ "<leader>gl", function() Snacks.lazygit.log() end, desc = "Git Log" },
