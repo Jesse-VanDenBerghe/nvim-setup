@@ -59,6 +59,8 @@ return {
 				{ "<leader>g", group = "[G]it" },
 				{ "<leader>gc", group = "[C]ommit" },
 				{ "<leader>gb", group = "[B]ranch" },
+
+				{ "<leader>a", group = "[A]I" },
 			},
 		},
 		keys = {

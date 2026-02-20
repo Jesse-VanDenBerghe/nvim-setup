@@ -36,24 +36,18 @@ return {
 							vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
 
 							-- Trigger / cycle through inline completions.
-							vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
-								desc = "LSP: trigger inline completion",
-								buffer = bufnr,
-							})
-							vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
-								desc = "LSP: cycle inline completion",
-								buffer = bufnr,
-							})
+						vim.keymap.set("i", "<C-F>", vim.lsp.inline_completion.get, {
+							desc = "LSP: trigger inline completion",
+							buffer = bufnr,
+						})
+						vim.keymap.set("i", "<C-G>", vim.lsp.inline_completion.select, {
+							desc = "LSP: cycle inline completion",
+							buffer = bufnr,
+						})
 
-							-- Accept the currently shown inline completion suggestion.
-							vim.keymap.set("i", "<Tab>", function()
-								return vim.lsp.inline_completion.accept() or "<Tab>"
-							end, {
-								desc = "LSP: accept inline completion",
-								buffer = bufnr,
-								expr = true,
-							})
-							vim.keymap.set("i", "<Right>", function()
+						-- Accept the currently shown inline completion suggestion.
+						-- NOTE: <Tab> is handled by blink.cmp's keymap chain (sidekick NES → inline_completion → fallback).
+						vim.keymap.set("i", "<Right>", function()
 								return vim.lsp.inline_completion.accept() or "<Right>"
 							end, {
 								desc = "LSP: accept inline completion",

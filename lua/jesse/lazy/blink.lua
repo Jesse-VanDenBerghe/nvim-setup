@@ -36,31 +36,30 @@ return {
 		--- @type blink.cmp.Config
 		opts = {
 			keymap = {
-				-- 'default' (recommended) for mappings similar to built-in completions
-				--   <c-y> to accept ([y]es) the completion.
-				--    This will auto-import if your LSP supports it.
-				--    This will expand snippets if the LSP sent a snippet.
-				-- 'super-tab' for tab to accept
-				-- 'enter' for enter to accept
-				-- 'none' for no mappings
+				-- Explicit <Tab> chain:
+				--   1. snippet_forward  (LuaSnip jump to next placeholder)
+				--   2. sidekick NES     (jump to / apply Next Edit Suggestion)
+				--   3. inline_completion (Copilot inline — nvim 0.12+ only, guarded)
+				--   4. fallback         (default tab behaviour)
+				-- <s-tab>/<c-space>/<c-n>/<c-p>/<c-e>/<c-k> come from the 'default' preset.
 				--
-				-- For an understanding of why the 'default' preset is recommended,
-				-- you will need to read `:help ins-completion`
-				--
-				-- No, but seriously. Please read `:help ins-completion`, it is really good!
-				--
-				-- All presets have the following mappings:
-				-- <tab>/<s-tab>: move to right/left of your snippet expansion
-				-- <c-space>: Open menu or open docs if already open
-				-- <c-n>/<c-p> or <up>/<down>: Select next/previous item
-				-- <c-e>: Hide menu
-				-- <c-k>: Toggle signature help
-				--
-				-- See :h blink-cmp-config-keymap for defining your own keymap
-				preset = "super-tab",
-
+				-- See :h blink-cmp-config-keymap for defining your own keymap.
 				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
 				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+				preset = "default",
+				["<Tab>"] = {
+					"snippet_forward",
+					function() -- sidekick: jump/apply Next Edit Suggestion
+						return require("sidekick").nes_jump_or_apply()
+					end,
+					function() -- Copilot inline completion (nvim 0.12+ nightly only)
+						if vim.lsp.inline_completion then
+							return vim.lsp.inline_completion.get()
+						end
+					end,
+					"fallback",
+				},
+				["<S-Tab>"] = { "snippet_backward", "fallback" },
 			},
 
 			appearance = {
