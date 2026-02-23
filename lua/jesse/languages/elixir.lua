@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		-- Build keymaps
 		vim.keymap.set(
 			"n",
-			"<leader>bp",
+			"<leader>pbp",
 			function()
 				run_notify({ "mix", "compile" }, "mix compile")
 			end,
@@ -22,7 +22,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		-- Run keymaps
 		vim.keymap.set(
 			"n",
-			"<leader>rf",
+			"<leader>prf",
 			function()
 				run_notify({ "mix", "run", vim.fn.expand("%") }, "mix run")
 			end,
@@ -32,7 +32,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		if filename:match("%.exs$") then
 			vim.keymap.set(
 				"n",
-				"<leader>rs",
+				"<leader>prs",
 				function()
 					run_notify({ "elixir", vim.fn.expand("%") }, "elixir script")
 				end,
@@ -43,7 +43,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		-- Test keymaps
 		vim.keymap.set(
 			"n",
-			"<leader>tp",
+			"<leader>ptp",
 			function()
 				run_notify({ "mix", "test" }, "mix test")
 			end,
@@ -52,7 +52,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 		vim.keymap.set(
 			"n",
-			"<leader>tf",
+			"<leader>ptf",
 			function()
 				run_notify({ "mix", "test", vim.fn.expand("%") }, "mix test file")
 			end,
