@@ -4,9 +4,9 @@ local gradle_picker = require("jesse.languages.gradle.picker")
 local function update_gradle_setup()
 	local cwd = vim.fn.getcwd()
 	if vim.fn.filereadable(cwd .. "/gradlew") == 1 then
-		vim.keymap.set("n", "<leader>prg", gradle_picker.open, { desc = "Run Gradle task" })
+		vim.keymap.set("n", "<leader>sg", gradle_picker.open, { desc = "Search Gradle task" })
 	else
-		pcall(vim.keymap.del, "n", "<leader>prg")
+		pcall(vim.keymap.del, "n", "<leader>fg")
 	end
 end
 

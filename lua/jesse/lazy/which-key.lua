@@ -52,12 +52,6 @@ return {
 			{ "<leader>b", group = "Build / Buffer" },
 			{ "<leader>s", group = "Search / Grep" },
 
-			{ "<leader>p", group = "Project" },
-			{ "<leader>pr", group = "Run" },
-			{ "<leader>ps", group = "Search" },
-			{ "<leader>pb", group = "Build" },
-			{ "<leader>pt", group = "Test" },
-
 			{ "<leader>l", group = "LSP" },
 			{ "<leader>lr", group = "Refactor" },
 			{ "<leader>lg", group = "Goto" },
