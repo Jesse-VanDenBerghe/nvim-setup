@@ -3,40 +3,29 @@ local util = require("jesse.util")
 local M = {}
 
 function M.open()
-	local raw = vim.fn.systemlist("./gradlew tasks --all")
-	local exit_code = vim.v.shell_error
-
-	if exit_code ~= 0 then
-		vim.notify(
-			"Failed to get gradle tasks: " .. table.concat(raw, "\n"),
-			vim.log.levels.ERROR,
-			{ title = "gradle picker" }
-		)
-		return
-	end
-
-	local items = {}
-
-	for _, line in ipairs(raw) do
-		local match = line:match("^%s*(%S+)%s*%- (.+)$")
-		if match then
-			local task, description = line:match("^%s*(%S+)%s*%- (.+)$")
-			table.insert(items, { label = task, description = description })
-		end
-	end
-
-	Snacks.picker.select(items, {
+	util.task_picker({
 		prompt = "Gradle tasks",
-		format_item = function(item)
-			return item.label .. " - " .. item.description or ""
+		fetch = function()
+			local raw = vim.fn.systemlist("./gradlew tasks --all")
+			if vim.v.shell_error ~= 0 then
+				vim.notify(table.concat(raw, "\n"), vim.log.levels.ERROR, { title = "gradle picker" })
+				return nil
+			end
+			return raw
 		end,
-	}, function(selected)
-		if selected then
-			local task = selected.label
-			vim.notify("Running gradle task: " .. task, vim.log.levels.INFO, { title = "gradle picker" })
-			util.run_notify({ "./gradlew", task }, task)
-		end
-	end)
+		parse = function(line)
+			local task, desc = line:match("^%s*(%S+)%s*%- (.+)$")
+			if task then return { label = task, description = desc } end
+		end,
+		build_cmd = function(task, args)
+			local cmd = { "./gradlew", task }
+			for arg in args:gmatch("%S+") do
+				table.insert(cmd, arg)
+			end
+			return cmd
+		end,
+		args_prefix = function(task) return "./gradlew " .. task .. " " end,
+	})
 end
 
 return M

@@ -3,44 +3,29 @@ local util = require("jesse.util")
 local M = {}
 
 function M.open()
-	local raw = vim.fn.systemlist("mix help")
-	local exit_code = vim.v.shell_error
-
-	if exit_code ~= 0 then
-		vim.notify(
-			"Failed to get mix tasks: " .. table.concat(raw, "\n"),
-			vim.log.levels.ERROR,
-			{ title = "mix picker" }
-		)
-		return
-	end
-
-	local items = {}
-	for _, line in ipairs(raw) do
-		local task, description = line:match("^mix%s+(%S+)%s+# (.+)$")
-		if task then
-			table.insert(items, { label = task, description = description })
-		end
-	end
-
-	Snacks.picker.select(items, {
+	util.task_picker({
 		prompt = "Mix tasks",
-		format_item = function(item)
-			return item.label .. " - " .. item.description
+		fetch = function()
+			local raw = vim.fn.systemlist("mix help")
+			if vim.v.shell_error ~= 0 then
+				vim.notify(table.concat(raw, "\n"), vim.log.levels.ERROR, { title = "mix picker" })
+				return nil
+			end
+			return raw
 		end,
-	}, function(selected)
-		if not selected then return end
-		local task = selected.label
-		vim.ui.input({ prompt = "mix " .. task .. " ", default = "" }, function(extra)
-			if extra == nil then return end
+		parse = function(line)
+			local task, desc = line:match("^mix%s+(%S+)%s+# (.+)$")
+			if task then return { label = task, description = desc } end
+		end,
+		build_cmd = function(task, args)
 			local cmd = { "mix", task }
-			for arg in extra:gmatch("%S+") do
+			for arg in args:gmatch("%S+") do
 				table.insert(cmd, arg)
 			end
-			local label = "mix " .. task .. (extra ~= "" and (" " .. extra) or "")
-			util.run_notify(cmd, label, { timeout = false })
-		end)
-	end)
+			return cmd
+		end,
+		args_prefix = function(task) return "mix " .. task .. " " end,
+	})
 end
 
 return M

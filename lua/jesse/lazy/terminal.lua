@@ -45,6 +45,6 @@ return {
 				vim.fn.termopen(input)
 				vim.cmd("startinsert")
 			end)
-		end, { desc = "[R]un [T]erminal command" })
+		end, { desc = "Run [T]erminal command" })
 	end,
 }
