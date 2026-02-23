@@ -15,10 +15,12 @@ by launching Neovim and observing runtime behaviour.
 ├── init.lua                            # Entry point — just: require("jesse")
 ├── lazy-lock.json                      # Plugin lockfile (commit this on updates)
 └── lua/jesse/
-    ├── init.lua                        # ALL core options, autocmds, global keymaps
+    ├── init.lua                        # Core options & autocmds (mapleader, vim.opt.*, auto-save)
+    ├── keymaps.lua                     # Global keymaps (required by init.lua after lazy_init)
     ├── lazy_init.lua                   # Bootstraps lazy.nvim, calls lazy.setup{}
     ├── languages_init.lua              # Auto-requires every *.lua in languages/
     ├── copilot.lua                     # Copilot module (M = {} pattern; required by lsp.lua)
+    ├── util.lua                        # Shared utilities: M.run_notify for async shell commands
     ├── lazy/                           # One file per plugin (or plugin group)
     │   ├── init.lua                    # Minimal plugins (plenary, guess-indent)
     │   ├── lsp.lua                     # nvim-lspconfig + Mason + Copilot wiring
@@ -33,6 +35,7 @@ by launching Neovim and observing runtime behaviour.
     │   ├── flash.lua                   # folke/flash.nvim motion (s, S)
     │   ├── render-markdown.lua         # Markdown rendering (ft-loaded)
     │   ├── sidekick.lua                # folke/sidekick.nvim — NES, AI CLI (<c-.>)
+    │   ├── terminal.lua                # Native terminal keymaps, autocmds, <leader>rt launcher
     │   ├── themes.lua                  # Colorscheme (onedark, warmer, transparent)
     │   ├── todo-comments.lua           # folke/todo-comments.nvim
     │   ├── trouble.lua                 # folke/trouble.nvim diagnostics UI
@@ -40,12 +43,17 @@ by launching Neovim and observing runtime behaviour.
     │   └── snacks/
     │       └── dashboard.lua           # Dashboard config, required by snacks.lua
     └── languages/                      # Per-language autocmds & keymaps
-        └── elixir.lua                  # Elixir build/run/test keymaps + Copilot detach
+        ├── elixir.lua                  # Elixir build/run/test keymaps + Copilot detach
+        ├── elixir/
+        │   └── picker.lua              # Snacks picker for `mix help` tasks
+        ├── gradle.lua                  # Gradle task keymap (active when gradlew is present)
+        └── gradle/
+            └── picker.lua              # Snacks picker for `./gradlew tasks --all`
 ```
 
-**Important**: All vim options, autocmds, and global keymaps live in
-`lua/jesse/init.lua`, not the root `init.lua`. The root file is a single
-`require("jesse")` call.
+**Important**: `lua/jesse/init.lua` holds `vim.opt.*` settings and autocmds.
+Global keymaps live in `lua/jesse/keymaps.lua`, which is required at the bottom of
+`init.lua`. The root `init.lua` is a single `require("jesse")` call.
 
 ---
 
@@ -57,7 +65,7 @@ There is no Makefile or shell script. Validation happens inside Neovim.
 
 | Tool | Command |
 |------|---------|
-| Format current buffer | `<leader>uf` (calls `conform.nvim` → `stylua`, mode `""` = all modes) |
+| Format current buffer | `<leader>uf` (calls `conform.nvim` → `stylua`) |
 | Format from CLI | `stylua lua/jesse/**/*.lua` (reads `.stylua.toml` automatically) |
 | Lua type-check (lazydev) | Errors surface in the editor via `lua_ls` |
 
@@ -116,18 +124,22 @@ Three shapes for `lua/jesse/lazy/<name>.lua` files:
 3. **`keys = { … }`** in spec — for lazy-loaded plugins whose primary trigger is keymaps;
    declare keymaps here rather than inside `config` so lazy.nvim can display them.
 
-Plain Lua modules (non-plugin) use the **`M = {}` pattern**:
+**Virtual specs** (no plugin download) use `dir = vim.fn.stdpath("config")` and a
+`name` field: see `terminal.lua` for the canonical example.
+
+Plain Lua modules (non-plugin) use the **`M = {}` pattern** and return `M`:
 ```lua
 local M = {}
 function M.setup(capabilities) … end
 function M.toggle() … end
 return M
 ```
-`lua/jesse/copilot.lua` is the only such module. It is `require`d explicitly inside
-`lsp.lua`'s `config` function: `require("jesse.copilot").setup(capabilities)`.
+Current `M = {}` modules: `copilot.lua`, `util.lua`, `elixir/picker.lua`,
+`gradle/picker.lua`.
 
 Language-specific setup lives in `lua/jesse/languages/<lang>.lua` and is auto-discovered
-by `languages_init.lua` — no manual registration needed.
+by `languages_init.lua` — no manual registration needed. Sub-modules (pickers, helpers)
+live in `lua/jesse/languages/<lang>/` and are required explicitly by the parent file.
 
 ### Imports / requires
 
@@ -141,9 +153,9 @@ by `languages_init.lua` — no manual registration needed.
   local ok, status = pcall(require, "sidekick.status")
   if not ok then return end
   ```
-- **Exception**: `Snacks` (capital S) is an intentional implicit global injected by
-  `snacks.nvim`. Never `require` it locally — use `Snacks.*` directly. This is the
-  only sanctioned implicit global in the codebase.
+- **`Snacks`** (capital S) is an intentional implicit global injected by `snacks.nvim`.
+  Never `require` it locally — use `Snacks.*` directly. This is the only sanctioned
+  implicit global in the codebase.
 
 ### Keymaps
 
@@ -163,7 +175,7 @@ by `languages_init.lua` — no manual registration needed.
   - `<leader>e` — Explorer (Snacks)
   - `<leader>s` — Search / grep
   - `<leader>t` — Test
-  - `<leader>r` — Run
+  - `<leader>r` — Run (`rc` arbitrary command, `rt` terminal, `rb` background)
   - `<leader>b` — Build
   - `<leader>l` — LSP (`lr` Refactor, `lg` Go-to)
   - `<leader>g` — Git (`gc` Commit, `gb` Branch)
@@ -182,7 +194,7 @@ by `languages_init.lua` — no manual registration needed.
 - Use `{ clear = false }` only for augroups that accumulate per-buffer entries
   (e.g. `"kickstart-lsp-highlight"`, `"copilot-inline-completion"`).
 - **Augroup naming**: `kebab-case` for core / LSP groups; `PascalCase` for per-language
-  groups (e.g. `"ElixirTools"`).
+  groups (e.g. `"ElixirTools"`, `"GradleTools"`).
 - **Auto-save is active globally**: `lua/jesse/init.lua` registers an `InsertLeave` +
   `TextChanged` autocmd (`"auto-save"` group) that runs `silent! wall` whenever
   `vim.bo.buftype == ""` and `vim.bo.modifiable`. Any normal file buffer will be written
@@ -203,15 +215,35 @@ by `languages_init.lua` — no manual registration needed.
       end,
   })
   ```
-- Language keymaps that run shell commands use `vim.cmd("!mix compile")` style
-  (blocking Neovim bang-command), **not** `vim.fn.system`. No `vim.v.shell_error`
-  check is required for these interactive commands since output streams to the terminal.
+- Language keymaps that run interactive shell commands use `vim.cmd("!mix compile")`
+  (blocking bang-command, output streams to the terminal). Use `util.run_notify` for
+  commands whose output should appear as a notification (see below).
+- Condition environment-specific keymaps on filesystem checks at `VimEnter`/`DirChanged`
+  (see `gradle.lua`: keymap only registered when `gradlew` is present in cwd).
+
+### `util.run_notify` — async shell helper
+
+`lua/jesse/util.lua` exposes `M.run_notify(cmd, label, opts?)` for running a command
+asynchronously via `vim.fn.jobstart` and surfacing stdout/stderr as a `vim.notify`
+notification. This is the correct pattern for long-running commands (gradle tasks,
+mix tasks) triggered from pickers or the `<leader>rc` prompt.
+
+```lua
+local util = require("jesse.util")
+util.run_notify({ "./gradlew", "test" }, "gradle test")
+-- opts.timeout = false  →  notification persists until dismissed
+util.run_notify({ "mix", "test" }, "mix test", { timeout = false })
+```
+
+`vim.fn.jobstart` is **only** permitted inside `util.run_notify` and in
+`snacks/dashboard.lua` (detached browser-opening). All other callers must go through
+`util.run_notify` or use synchronous `vim.fn.system` / `vim.fn.systemlist`.
 
 ### Naming conventions
 
 - **Variables / locals**: `snake_case` (e.g. `languages_dir`, `copilot_config`).
 - **Augroup names**: `kebab-case` strings (e.g. `"kickstart-lsp-attach"`).
-- **Language augroup names**: `PascalCase` (e.g. `"ElixirTools"`).
+- **Language augroup names**: `PascalCase` (e.g. `"ElixirTools"`, `"GradleTools"`).
 - **Boolean guards**: prefer early-return style rather than deep nesting.
 - **Helper functions**: define inline with `local function name() … end` inside `config`
   closures rather than at module level.
@@ -219,8 +251,8 @@ by `languages_init.lua` — no manual registration needed.
 ### Error handling
 
 - Use `pcall` for operations that may fail (require, extension loading).
-- Check `vim.v.shell_error` after `vim.fn.system()` calls in non-language-keymap
-  contexts; use early return:
+- Check `vim.v.shell_error` immediately after `vim.fn.system()` / `vim.fn.systemlist()`
+  calls; use early return:
   ```lua
   local result = vim.fn.system({ "git", "add", "-A" })
   if vim.v.shell_error ~= 0 then
@@ -234,9 +266,12 @@ by `languages_init.lua` — no manual registration needed.
   `languages_init.lua` uses bare `pcall(require, module)` — intentional since missing
   language files are non-fatal.
 
-### Shell calls from keymaps (non-language contexts)
+### Shell calls from keymaps
 
-Use `vim.fn.system` / `vim.fn.systemlist` synchronously (not `vim.fn.jobstart`).
+Use `vim.fn.system` / `vim.fn.systemlist` for quick synchronous lookups (e.g. reading
+git branch name). Use `util.run_notify` for anything that takes time or whose output
+the user needs to read.
+
 A recurring pattern is branch-name ticket extraction for commit messages:
 ```lua
 local branch = vim.fn.systemlist("git rev-parse --abbrev-ref HEAD")[1]
@@ -245,17 +280,6 @@ local message = ticket and (ticket .. ": " .. input) or input
 ```
 Jira-style ticket codes (e.g. `PROJ-123`) from the branch name are automatically
 prepended to commit messages when found.
-
-The **only** sanctioned use of `vim.fn.jobstart` is in `snacks/dashboard.lua` for
-detached browser-opening: `vim.fn.jobstart("gh pr list --web", { detach = true })`.
-All other async work uses Neovim's built-in async APIs or synchronous `vim.fn.system`.
-
-### Buffer-local user commands
-
-Use `vim.api.nvim_buf_create_user_command` for commands scoped to a buffer:
-```lua
-vim.api.nvim_buf_create_user_command(bufnr, "LspCopilotSignIn", function() … end, {})
-```
 
 ### Type annotations
 
@@ -272,7 +296,6 @@ local function client_supports_method(client, bufnr) … end
 Use `vim.fn.has("nvim-0.11")` for API version branching, and nil-check new API tables
 before using them:
 ```lua
--- API that changed signature between 0.10 and 0.11
 if vim.fn.has("nvim-0.11") == 1 then
     return client:supports_method(method, bufnr)
 else
@@ -287,8 +310,7 @@ if ic and ic.enable and ic.get then … end
 ### Cross-plugin integration via `specs`
 
 Use lazy.nvim's `specs` field (not `dependencies`) when a plugin needs to inject opts
-into another plugin's spec from its own file. `flash.lua` uses this to register its
-picker keybinding inside `snacks.nvim`'s picker config:
+into another plugin's spec from its own file:
 ```lua
 specs = {
     { "folke/snacks.nvim", opts = { picker = { win = { input = { keys = {
@@ -312,7 +334,7 @@ specs = {
 - **Update lockfile**: run `:Lazy update` in Neovim; commit `lazy-lock.json`.
 - **Pinning**: use `version = "x.*"` or `tag = "vX.Y.Z"` for stability.
 - **Optional dependencies**: use `optional = true` so the dependent plugin loads
-  regardless of whether the optional one is installed (e.g. `lualine.lua` → `sidekick.nvim`).
+  regardless of whether the optional one is installed.
 - **Conditional build steps**: use an IIFE to compute the `build` field:
   ```lua
   build = (function()
@@ -342,10 +364,9 @@ The `ensure_installed` list is built dynamically from that same table.
 ### Copilot (native LSP, nvim 0.11+)
 
 Copilot is wired as a **native LSP client** using the `vim.lsp.config` / `vim.lsp.enable`
-API (nvim 0.11+), implemented in `lua/jesse/copilot.lua` (the `M = {}` module pattern).
-`lsp.lua` calls `require("jesse.copilot").setup(capabilities)` inside its `config`
-function. It exposes `:CopilotToggle`, `:LspCopilotSignIn`, and `:LspCopilotSignOut`
-commands. The `<leader>ai` keymap for toggle is registered inside `M.setup()`.
+API (nvim 0.11+), implemented in `lua/jesse/copilot.lua`. `lsp.lua` calls
+`require("jesse.copilot").setup(capabilities)` inside its `config` function. Exposes
+`:CopilotToggle`, `:LspCopilotSignIn`, `:LspCopilotSignOut`, and `<leader>ai`.
 Inline completion via `vim.lsp.inline_completion` is guarded for nvim 0.12+ nightly.
 
 **Copilot is intentionally detached from Elixir buffers**: `languages/elixir.lua` has an
