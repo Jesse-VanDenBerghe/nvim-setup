@@ -175,6 +175,7 @@ return {
 		{ "<leader>sp", function() Snacks.picker.lazy() end, desc = "Search for Plugin Spec" },
 		{ "<leader>sq", function() Snacks.picker.qflist() end, desc = "Quickfix List" },
 		{ "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume" },
+		{ "<leader>se", function() require("jesse.lazy.snacks.terminals").open() end, desc = "[S]earch T[e]rminals" },
 		{ "<leader>su", function() Snacks.picker.undo() end, desc = "Undo History" },
 		{ "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
 		-- LSP
