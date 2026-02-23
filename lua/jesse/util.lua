@@ -3,7 +3,10 @@ local M = {}
 ---Run a shell command asynchronously and report output via vim.notify.
 ---@param cmd string[] Command and arguments.
 ---@param label string Short human-readable label shown in the notification title.
-function M.run_notify(cmd, label)
+---@param opts? { timeout?: boolean } Optional settings. Set `timeout = false` to persist all notifications.
+function M.run_notify(cmd, label, opts)
+	opts = opts or {}
+	local persist = opts.timeout == false
 	local lines = {}
 	vim.notify("Running: " .. table.concat(cmd, " "), vim.log.levels.TRACE, { title = label })
 	vim.fn.jobstart(cmd, {
@@ -28,11 +31,11 @@ function M.run_notify(cmd, label)
 			local output = table.concat(lines, "\n")
 			local level = code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
 			local title = code == 0 and (label .. " succeeded") or (label .. " failed (exit " .. code .. ")")
-			local opts = { title = title }
-			if level == vim.log.levels.ERROR then
-				opts.timeout = false
+			local notify_opts = { title = title }
+			if persist or level == vim.log.levels.ERROR then
+				notify_opts.timeout = false
 			end
-			vim.notify(output ~= "" and output or "(no output)", level, opts)
+			vim.notify(output ~= "" and output or "(no output)", level, notify_opts)
 		end,
 	})
 end

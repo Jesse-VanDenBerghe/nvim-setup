@@ -1,5 +1,6 @@
 local util = require("jesse.util")
 local run_notify = util.run_notify
+local mix_picker = require("jesse.languages.elixir.picker")
 
 local elixirgroup = vim.api.nvim_create_augroup("ElixirTools", { clear = true })
 
@@ -22,6 +23,9 @@ local function setup_elixir()
 	vim.keymap.set("n", "<leader>tf", function()
 		run_notify({ "mix", "test", vim.fn.expand("%") }, "mix test file")
 	end, { desc = "[T]est [F]ile (mix test)" })
+
+	-- Search keymaps
+	vim.keymap.set("n", "<leader>sm", mix_picker.open, { desc = "[S]earch [M]ix task" })
 end
 
 vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
