@@ -50,7 +50,7 @@ return {
 		{ "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
 		-- Git
 		{ "<leader>gb", function() Snacks.picker.git_branches() end, desc = "Git Branches" },
-		{ "<leader>gB", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
+		{ "<leader>gw", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
 		{ "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },
 		{ "<leader>gL", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
 		{ "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
