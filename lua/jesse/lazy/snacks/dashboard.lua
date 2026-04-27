@@ -1,14 +1,6 @@
 -- Dashboard configuration for snacks.nvim
 -- Kept in a separate file to keep snacks.lua lean.
 
-local header = [[
-     ██╗███████╗███████╗███████╗███████╗
-     ██║██╔════╝██╔════╝██╔════╝██╔════╝
-     ██║█████╗  ███████╗███████╗█████╗
-██   ██║██╔══╝  ╚════██║╚════██║██╔══╝
-╚█████╔╝███████╗███████║███████║███████╗
- ╚════╝ ╚══════╝╚══════╝╚══════╝╚══════╝]]
-
 -- Static project shortcuts (shown in pane 1 below keymaps)
 local pinned = {
 	{ name = "Neovim Config", path = "~/.config/nvim", icon = " " },
@@ -51,11 +43,9 @@ return {
 			{ icon = "󰒲 ", key = "l", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
 			{ icon = "󰩈 ", key = "q", desc = "Quit", action = ":qa" },
 		},
-		header = header,
 	},
 	sections = {
 		-- ── Pane 1 (left) ───────────────────────────────────────────────────
-		{ section = "header" },
 		{ section = "keys", gap = 1, padding = 1 },
 		pinned_projects,
 		{ section = "startup", padding = { 2, 1 } },
